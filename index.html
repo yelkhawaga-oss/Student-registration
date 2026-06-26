@@ -26,10 +26,12 @@
                 <input type="tel" id="parentPhone" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
             </div>
             <div>
-                <label class="block text-slate-300 mb-2">اختر الصف الدراسي أو المجموعة 📚</label>
+                <label class="block text-slate-300 mb-2">اختر الصف الدراسي أو الميعاد 📚</label>
                 <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-                    <option value="">-- اختر من هنا --</option>
-                    <optgroup label="الصفوف الدراسية الأساسية">
+                    <option value="">-- اضغط هنا للاختيار --</option>
+                    
+                    <!-- الصفوف الأساسية الثابتة -->
+                    <optgroup label="✨ الصفوف الدراسية الأساسية">
                         <option value="1 إبتدائي">الصف الأول الابتدائي</option>
                         <option value="2 إبتدائي">الصف الثاني الابتدائي</option>
                         <option value="3 إبتدائي">الصف الثالث الابتدائي</option>
@@ -41,7 +43,10 @@
                         <option value="3 إعدادي">الصف الثالث الإعدادي</option>
                         <option value="1 ثانوي">الصف الأول الثانوي</option>
                     </optgroup>
-                    <optgroup label="المجموعات والمواعيد الخاصة المضافة" id="dynamicOptGroup">
+                    
+                    <!-- المجموعات الاختيارية اللي المس بتتحكم فيها -->
+                    <optgroup label="🗓️ مواعيد المجموعات المتاحة" id="dynamicOptGroup">
+                        <!-- لو مفيش بيانات هينزل السطر اللي أنت طلبته أوتوماتيك من الـ JavaScript -->
                     </optgroup>
                 </select>
             </div>
@@ -59,12 +64,13 @@
             const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
             
             if (!error && data && data.length > 0) {
-                optGroup.innerHTML = '';
+                optGroup.innerHTML = ''; // نمسح أي حاجة قديمة
                 data.forEach(g => {
-                    optGroup.innerHTML += `<option value="${g.group_name}">${g.group_name} 🗓️</option>`;
+                    optGroup.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>`;
                 });
             } else {
-                optGroup.innerHTML = '<option value="" disabled>لا توجد مواعيد مخصصة مضافة حالياً</option>';
+                // لو الجدول فاضي والمس مضافتش حاجة، يظهر السطر بتاعك هنا والكل يقرأه
+                optGroup.innerHTML = '<option value="" disabled>التسجيل لسه المس مضفتش مجموعات ⏳</option>';
             }
         }
         loadCustomGroups();
@@ -82,7 +88,7 @@
             const { data, error } = await _supabase.from('students').insert([{ name, phone, grade }]);
 
             if (error) {
-                alert("حصلت مشكلة في السيرفر، جرب تاني يا بطل!");
+                alert("حصلت مشكلة، جرب تاني يا بطل!");
                 btn.disabled = false;
                 btn.innerText = "تأكيد الحجز الملوكي ✨";
             } else {
