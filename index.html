@@ -26,9 +26,23 @@
                 <input type="tel" id="parentPhone" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
             </div>
             <div>
-                <label class="block text-slate-300 mb-2">اختر المجموعة والميعاد 📚</label>
+                <label class="block text-slate-300 mb-2">اختر الصف الدراسي أو المجموعة 📚</label>
                 <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-                    <option value="">-- جاري تحميل المجموعات المتاحة... --</option>
+                    <option value="">-- اختر من هنا --</option>
+                    <optgroup label="الصفوف الدراسية الأساسية">
+                        <option value="1 إبتدائي">الصف الأول الابتدائي</option>
+                        <option value="2 إبتدائي">الصف الثاني الابتدائي</option>
+                        <option value="3 إبتدائي">الصف الثالث الابتدائي</option>
+                        <option value="4 إبتدائي">الصف الرابع الابتدائي</option>
+                        <option value="5 إبتدائي">الصف الخامس الابتدائي</option>
+                        <option value="6 إبتدائي">الصف السادس الابتدائي</option>
+                        <option value="1 إعدادي">الصف الأول الإعدادي</option>
+                        <option value="2 إعدادي">الصف الثاني الإعدادي</option>
+                        <option value="3 إعدادي">الصف الثالث الإعدادي</option>
+                        <option value="1 ثانوي">الصف الأول الثانوي</option>
+                    </optgroup>
+                    <optgroup label="المجموعات والمواعيد الخاصة المضافة" id="dynamicOptGroup">
+                    </optgroup>
                 </select>
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">تأكيد الحجز الملوكي ✨</button>
@@ -40,22 +54,20 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // جلب المجموعات اللي المس ضافتها وعرضها في القائمة أوتوماتيك
-        async function loadGroupsIntoSelect() {
-            const select = document.getElementById('studentGrade');
+        async function loadCustomGroups() {
+            const optGroup = document.getElementById('dynamicOptGroup');
             const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
             
-            if (error || !data || data.length === 0) {
-                select.innerHTML = '<option value="">لا توجد مجموعات متاحة حالياً</option>';
-                return;
+            if (!error && data && data.length > 0) {
+                optGroup.innerHTML = '';
+                data.forEach(g => {
+                    optGroup.innerHTML += `<option value="${g.group_name}">${g.group_name} 🗓️</option>`;
+                });
+            } else {
+                optGroup.innerHTML = '<option value="" disabled>لا توجد مواعيد مخصصة مضافة حالياً</option>';
             }
-            
-            select.innerHTML = '<option value="">-- اضغط هنا لاختيار مجموعتك --</option>';
-            data.forEach(g => {
-                select.innerHTML += `<option value="${g.group_name}">${g.group_name} 🗓️</option>`;
-            });
         }
-        loadGroupsIntoSelect();
+        loadCustomGroups();
 
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
