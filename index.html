@@ -3,107 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الحجز الإلكتروني | ميس دينا فتحي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>تسجيل الطلاب - ميس إنجليش</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .glass-card { background: rgba(10, 10, 12, 0.75); backdrop-filter: blur(16px); }
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body class="bg-[#050507] min-h-screen text-slate-100 flex flex-col justify-between relative overflow-x-hidden">
-
-    <main class="w-full max-w-xl mx-auto px-4 my-10 flex-grow relative z-10">
-        <div class="glass-card border border-amber-500/10 rounded-3xl p-6 md:p-10 shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-4 text-center">👑 إستمارة حجز المجموعات الملكية</h2>
-            
-            <form id="studentRegForm" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">اسم الطالب رباعي *</label>
-                    <input type="text" id="studentName" required class="w-full bg-[#0d0d11] border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none" placeholder="">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">رقم هاتف ولي الأمر *</label>
-                    <input type="tel" id="parentPhone" required class="w-full bg-[#0d0d11] border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none" placeholder="" dir="ltr">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">المرحلة الدراسية للطالب *</label>
-                    <select id="grade" required onchange="fetchAvailableGroups()" class="w-full bg-[#0d0d11] border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none">
-                        <option value="">اختر الصف الدراسي...</option>
-                        <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
-                        <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
-                        <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
-                        <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
-                        <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
-                        <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
-                        <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
-                        <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
-                        <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
-                        <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">المجموعات المتاحة لهذا الصف *</label>
-                    <select id="studentGroup" required class="w-full bg-[#0d0d11] border border-slate-800 rounded-2xl px-4 py-3.5 text-white focus:border-amber-500 focus:outline-none">
-                        <option value="">الرجاء اختيار الصف الدراسي أولاً...</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black font-extrabold py-4 rounded-2xl shadow-xl transition transform hover:-translate-y-[2px]">
-                    تأكيد حجز المقعد والمجموعة 🚀
-                </button>
-            </form>
-        </div>
-    </main>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="glass w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <h2 class="text-2xl font-bold text-center text-amber-400 mb-6">👑 استمارة حجز المجموعات الملكية 👑</h2>
+        <form id="regForm" class="space-y-4">
+            <div>
+                <label class="block text-slate-300 mb-2">اسم الطالب رباعي 👤</label>
+                <input type="text" id="studentName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="block text-slate-300 mb-2">رقم هاتف ولي الأمر 📞</label>
+                <input type="tel" id="parentPhone" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="block text-slate-300 mb-2">السنة الدراسية للطالب 📚</label>
+                <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+                    <option value="">-- اختر الصف الدراسي --</option>
+                    <option value="1">الصف الأول الابتدائي</option>
+                    <option value="2">الصف الثاني الابتدائي</option>
+                    <option value="3">الصف الثالث الابتدائي</option>
+                    <option value="4">الصف الرابع الابتدائي</option>
+                    <option value="5">الصف الخامس الابتدائي</option>
+                    <option value="6">الصف السادس الابتدائي</option>
+                </select>
+            </div>
+            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">تأكيد الحجز الملوكي ✨</button>
+        </form>
+    </div>
 
     <script>
-        const SUPABASE_URL = "https://gxmadpzxcrfjuciclqhi.supabase.co/rest/v1";
-        const SUPABASE_KEY = "sb_publishable_wyVyUG_RVd8nb2xq1Hmlpw_43HsqoPJ";
+        // ربط السوبابيز المباشر
+        const supabaseUrl = "https://lhshvscofrestjvlespa.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function fetchAvailableGroups() {
-            const selectedGrade = document.getElementById('grade').value;
-            const groupSelect = document.getElementById('studentGroup');
-            
-            if(!selectedGrade) { groupSelect.innerHTML = '<option value="">الرجاء اختيار الصف الدراسي أولاً...</option>'; return; }
-            groupSelect.innerHTML = '<option value="">جاري جلب المجموعات النشطة... 🔄</option>';
-
-            try {
-                const response = await fetch(`${SUPABASE_URL}/groups?target_grade=eq.${selectedGrade}`, {
-                    method: 'GET',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-                });
-                if (response.ok) {
-                    const groups = await response.json();
-                    if(groups.length === 0) {
-                        groupSelect.innerHTML = '<option value="">⚠️ لا توجد مجموعات متاحة حالياً لهذا الصف</option>';
-                        return;
-                    }
-                    groupSelect.innerHTML = '<option value="">اختر الموعد المناسب لك...</option>' + 
-                        groups.map(g => `<option value="${g.group_info}">${g.group_info}</option>`).join('');
-                }
-            } catch (e) { groupSelect.innerHTML = '<option value="">خطأ في تحميل المجموعات</option>'; }
-        }
-
-        document.getElementById('studentRegForm').addEventListener('submit', async function(e) {
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const studentData = {
-                student_name: document.getElementById('studentName').value.trim(),
-                parent_phone: document.getElementById('parentPhone').value.trim(),
-                grade: document.getElementById('grade').value,
-                selected_group: document.getElementById('studentGroup').value
-            };
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "جاري إرسال بياناتك للمس... ⏳";
 
-            try {
-                const response = await fetch(`${SUPABASE_URL}/students_registration`, {
-                    method: 'POST',
-                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(studentData)
-                });
-                if (response.ok) { alert('تم تأكيد حجزك في المجموعة بنجاح! 🎉'); document.getElementById('studentRegForm').reset(); }
-            } catch (error) { alert('خطأ في السيرفر'); }
+            const name = document.getElementById('studentName').value;
+            const phone = document.getElementById('parentPhone').value;
+            const grade = document.getElementById('studentGrade').value;
+
+            const { data, error } = await _supabase.from('students').insert([{ name, phone, grade }]);
+
+            if (error) {
+                alert("حصلت مشكلة صغننة، جرب تاني يا بطل!");
+                btn.disabled = false;
+                btn.innerText = "تأكيد الحجز الملوكي ✨";
+            } else {
+                confetti();
+                alert("مبروك! تم تسجيلك بنجاح في مجموعات ميس إنجليش الملكية 🎉");
+                document.getElementById('regForm').reset();
+                btn.disabled = false;
+                btn.innerText = "تأكيد الحجز الملوكي ✨";
+            }
         });
     </script>
 </body>
