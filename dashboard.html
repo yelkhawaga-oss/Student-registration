@@ -3,125 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استمارة التسجيل الملكية</title>
+    <title>لوحة التحكم الإدارية الفائقة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body { 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
-            color: #f8fafc; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            min-height: 100vh;
-        }
-        .card { 
-            background: rgba(30, 41, 59, 0.6); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        input, select {
-            transition: all 0.3s ease;
-        }
-        input:focus, select:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-        }
+        body { background-color: #0b0f19; color: #f1f5f9; font-family: system-ui, sans-serif; }
+        .panel-card { background-color: #111827; border: 1px solid #1f2937; }
+        .status-active { background-color: #065f46; color: #34d399; }
+        .status-blocked { background-color: #7f1d1d; color: #fca5a5; }
     </style>
 </head>
-<body class="p-4 flex items-center justify-center">
+<body class="p-6">
 
-    <div class="card w-full max-w-lg rounded-3xl p-8">
-        <h2 class="text-3xl font-black text-center text-amber-500 mb-8">تسجيل طلاب ميس إنجليش</h2>
-        
-        <form id="regForm" class="space-y-6">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <div class="flex flex-col md:flex-row justify-between items-center bg-gray-900 p-6 rounded-2xl border border-gray-800 gap-4">
             <div>
-                <label class="block text-sm font-medium text-slate-400 mb-2">اسم الطالب بالكامل</label>
-                <input type="text" id="name" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
+                <h1 class="text-2xl font-black text-amber-400">لوحة تحكم إدارة مجموعات الطلاب</h1>
+                <p class="text-sm text-gray-400">تحكم كامل في المواعيد، الحظر، الكشوفات، وحذف السجلات</p>
             </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-400 mb-2">رقم هاتف ولي الأمر</label>
-                <input type="tel" id="phone" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-400 mb-2">الصف الدراسي</label>
-                <select id="grade" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
-                    <option value="">-- اختار صفك --</option>
-                    <option value="1 إبتدائي">1 إبتدائي</option>
-                    <option value="2 إبتدائي">2 إبتدائي</option>
-                    <option value="3 إبتدائي">3 إبتدائي</option>
-                    <option value="4 إبتدائي">4 إبتدائي</option>
-                    <option value="5 إبتدائي">5 إبتدائي</option>
-                    <option value="6 إبتدائي">6 إبتدائي</option>
-                    <option value="1 إعدادي">1 إعدادي</option>
-                    <option value="2 إعدادي">2 إعدادي</option>
-                    <option value="3 إعدادي">3 إعدادي</option>
-                    <option value="1 ثانوي">1 ثانوي</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-400 mb-2">ميعاد المجموعة</label>
-                <select id="group" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
-                    <option value="">اختار الصف أولاً...</option>
-                </select>
-            </div>
-
-            <button type="submit" id="btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black p-4 rounded-2xl transition duration-300 transform hover:scale-105 active:scale-95">
-                تأكيد التسجيل الآن
+            <button onclick="loadDashboardData()" class="bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-xl font-bold text-sm transition shadow-md">
+                🔄 تحديث البيانات الفوري
             </button>
-        </form>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="panel-card p-6 rounded-2xl shadow-xl space-y-5 h-fit">
+                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3">➕ إضافة مواعيد جديدة للمنصة</h3>
+                
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2">تحديد الصف الدراسي:</label>
+                    <select id="newGroupGrade" class="w-full bg-gray-800 border border-gray-700 p-3 rounded-xl text-sm text-white focus:outline-none">
+                        <option value="1 إبتدائي">1 إبتدائي</option>
+                        <option value="2 إبتدائي">2 إبتدائي</option>
+                        <option value="3 إبتدائي">3 إبتدائي</option>
+                        <option value="4 إبتدائي">4 إبتدائي</option>
+                        <option value="5 إبتدائي">5 إبتدائي</option>
+                        <option value="6 إبتدائي">6 إبتدائي</option>
+                        <option value="1 إعدادي">1 إعدادي</option>
+                        <option value="2 إعدادي">2 إعدادي</option>
+                        <option value="3 إعدادي">3 إعدادي</option>
+                        <option value="1 ثانوي">1 ثانوي</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-2">اسم الميعاد أو التوقيت:</label>
+                    <input type="text" id="newGroupName" placeholder="مثال: السبت والأربعاء 4 عصراً" 
+                           class="w-full bg-gray-800 border border-gray-700 p-3 rounded-xl text-sm text-white focus:outline-none">
+                </div>
+
+                <button onclick="addNewGroup()" class="w-full bg-green-600 hover:bg-green-700 p-3 rounded-xl font-bold text-sm transition shadow-lg">
+                    حفظ ونشر الميعاد الآن
+                </button>
+            </div>
+
+            <div class="panel-card p-6 rounded-2xl shadow-xl lg:col-span-2 space-y-4">
+                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3">👥 قائمة الطلاب المسجلين بالسيستم حالياً</h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-gray-800">
+                                <th class="p-3">اسم الطالب</th>
+                                <th class="p-3">رقم الهاتف</th>
+                                <th class="p-3">الصف والمجموعة</th>
+                                <th class="p-3">الحالة</th>
+                                <th class="p-3 text-center">التحكم والإدارة السريعة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsMainTable" class="divide-y divide-gray-800">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const sb = supabase.createClient(
+        const _supabase = supabase.createClient(
             "https://lhshvscofrestjvlespa.supabase.co",
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
         );
 
-        // تحميل المجموعات بناءً على الصف
-        document.getElementById('grade').addEventListener('change', async (e) => {
-            const grp = document.getElementById('group');
-            grp.innerHTML = '<option>جاري التحميل...</option>';
+        // 1. دالة إضافة المجموعات بشكل سليم للسيرفر
+        async function addNewGroup() {
+            const grade = document.getElementById('newGroupGrade').value;
+            const name = document.getElementById('newGroupName').value.trim();
             
-            const { data } = await sb.from('groups')
-                .select('group_name')
-                .eq('grade_level', e.target.value);
-            
-            grp.innerHTML = '<option value="">اختار الميعاد المناسب</option>';
-            
-            if(data && data.length > 0) {
-                data.forEach(g => {
-                    grp.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>`;
-                });
+            if (!name) return alert("من فضلك اكتب اسم الميعاد أولاً!");
+
+            const { error } = await _supabase
+                .from('groups')
+                .insert([{ grade_level: grade, group_name: name }]);
+
+            if (error) {
+                alert("❌ خطأ أثناء الإضافة، تأكد من إعدادات الجدول.");
             } else {
-                grp.innerHTML = '<option value="">المس لسه مضفتش مواعيد للصف ده</option>';
+                alert("🎯 تم حفظ الميعاد وربطه بالصف الدراسي بنجاح!");
+                document.getElementById('newGroupName').value = '';
             }
-        });
+        }
 
-        // إرسال البيانات
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn');
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ يا عموري...";
+        // 2. دالة جلب وعرض الطلاب مع الحالات بـ ترتيب تنازلي (زي صورتك رقم 5)
+        async function loadDashboardData() {
+            const tbody = document.getElementById('studentsMainTable');
+            tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">⏳ جاري سحب الكشوفات الحالية...</td></tr>';
 
-            const { error } = await sb.from('students').insert([{
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                grade: document.getElementById('grade').value + " - " + document.getElementById('group').value
-            }]);
+            const { data, error } = await _supabase
+                .from('students_registration')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-            if(error) {
-                alert("حصلت مشكلة في السيرفر، جرب تاني يا بطل!");
-                btn.disabled = false;
-                btn.innerText = "تأكيد التسجيل الآن";
-            } else {
-                alert("تم تسجيلك في المجموعات بنجاح يا بطل! 🎉");
-                location.reload();
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">❌ فشل تحميل البيانات من الجدول الرئيسي</td></tr>';
+                return;
             }
-        });
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-600">لا يوجد طلاب مسجلين بالمنصة حتى الآن.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(student => {
+                let statusClass = student.status === 'active' ? 'status-active' : 'status-blocked';
+                let statusText = student.status === 'active' ? 'نشط' : (student.status === 'blocked_year' ? 'حظر سنوي' : 'محظور دائم');
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-900 transition">
+                        <td class="p-3 font-medium text-white">${student.name}</td>
+                        <td class="p-3 font-mono text-gray-300" dir="ltr">${student.parent_phone}</td>
+                        <td class="p-3 text-amber-400">${student.grade}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${statusClass}">${statusText}</span></td>
+                        <td class="p-3 flex justify-center gap-2 flex-wrap">
+                            <button onclick="updateStatus('${student.parent_phone}', 'active')" class="bg-gray-800 hover:bg-green-700 px-2 py-1 rounded text-xs text-white transition">تفعيل</button>
+                            <button onclick="updateStatus('${student.parent_phone}', 'blocked_year')" class="bg-gray-800 hover:bg-yellow-700 px-2 py-1 rounded text-xs text-white transition">حظر سنوي</button>
+                            <button onclick="updateStatus('${student.parent_phone}', 'blocked_forever')" class="bg-gray-800 hover:bg-red-900 px-2 py-1 rounded text-xs text-white transition">حظر دائم</button>
+                            <button onclick="deleteStudent(${student.id})" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs text-white font-bold transition">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 3. دالة تحديث الحالة من لوحة التحكم مباشرة
+        async function updateStatus(phone, newStatus) {
+            const { error } = await _supabase
+                .from('students_registration')
+                .update({ status: newStatus })
+                .eq('parent_phone', phone);
+
+            if (error) alert("❌ لم يتم تحديث الحالة.");
+            else {
+                alert(`⚙️ تم تعديل حالة الحساب بنجاح إلى [${newStatus}]`);
+                loadDashboardData();
+            }
+        }
+
+        // 4. دالة حذف الطالب بـ ID الحقيقي والـ Syntax الصحيح
+        async function deleteStudent(id) {
+            if (!confirm("هل أنتِ متأكدة من حذف سجل هذا الطالب نهائياً؟")) return;
+
+            const { error } = await _supabase
+                .from('students_registration')
+                .delete()
+                .eq('id', id);
+
+            if (error) alert("❌ فشل الحذف.");
+            else {
+                alert("🗑️ تم مسح السجل بنجاح من قاعدة البيانات!");
+                loadDashboardData();
+            }
+        }
+
+        // تشغيل التحميل التلقائي فور فتح الصفحة
+        loadDashboardData();
     </script>
 </body>
 </html>
