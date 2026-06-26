@@ -2,72 +2,177 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تسجيل الطلاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استمارة تسجيل الطلاب الاحترافية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>body { font-family: sans-serif; background-color: #0f172a; color: #f8fafc; }</style>
+    <style>
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            color: #f8fafc; 
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        input, select {
+            transition: all 0.25s ease-in-out;
+        }
+        input:focus, select:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+        }
+    </style>
 </head>
-<body class="p-4 flex items-center justify-center min-h-screen">
-    <form id="regForm" class="w-full max-w-sm space-y-4">
-        <h2 class="text-xl font-bold text-center text-amber-400">استمارة تسجيل الطلاب</h2>
-        <input type="text" id="studentName" placeholder="اسم الطالب" required class="w-full bg-slate-800 p-3 rounded-lg">
-        <input type="tel" id="parentPhone" placeholder="رقم الهاتف" required class="w-full bg-slate-800 p-3 rounded-lg">
-        <select id="gradeSelect" required class="w-full bg-slate-800 p-3 rounded-lg">
-            <option value="">اختر الصف الدراسي</option>
-            <option value="1 إبتدائي">1 إبتدائي</option>
-            <option value="2 إبتدائي">2 إبتدائي</option>
-            <option value="3 إبتدائي">3 إبتدائي</option>
-            <option value="4 إبتدائي">4 إبتدائي</option>
-            <option value="5 إبتدائي">5 إبتدائي</option>
-            <option value="6 إبتدائي">6 إبتدائي</option>
-            <option value="1 إعدادي">1 إعدادي</option>
-            <option value="2 إعدادي">2 إعدادي</option>
-            <option value="3 إعدادي">3 إعدادي</option>
-            <option value="1 ثانوي">1 ثانوي</option>
-        </select>
-        <select id="groupSelect" required class="w-full bg-slate-800 p-3 rounded-lg">
-            <option value="">اختر الميعاد</option>
-        </select>
-        <button type="submit" id="submitBtn" class="w-full bg-amber-500 p-3 rounded-lg font-bold">تسجيل</button>
-    </form>
+<body class="p-4 flex items-center justify-center">
+
+    <div class="glass-card w-full max-w-xl rounded-3xl p-8 shadow-2xl my-6">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-black text-amber-500 mb-2">منصة تسجيل الطلاب الذكية</h2>
+            <p class="text-slate-400 text-sm">برجاء إدخال البيانات بدقة للانضمام للمجموعات</p>
+        </div>
+        
+        <form id="regForm" class="space-y-6">
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">اسم الطالب رباعي</label>
+                <input type="text" id="studentName" required autocomplete="off" placeholder="اكتب اسم الطالب بالكامل"
+                       class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none placeholder-slate-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">رقم هاتف ولي الأمر (المسجل بالواتساب)</label>
+                <input type="tel" id="parentPhone" required autocomplete="off" placeholder="01xxxxxxxxx"
+                       class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none placeholder-slate-500 text-sm text-left" dir="ltr">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">الصف الدراسي الحالي</label>
+                <select id="gradeSelect" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none text-sm">
+                    <option value="">-- اضغط لاختيار الصف الدراسي --</option>
+                    <option value="1 إبتدائي">1 إبتدائي</option>
+                    <option value="2 إبتدائي">2 إبتدائي</option>
+                    <option value="3 إبتدائي">3 إبتدائي</option>
+                    <option value="4 إبتدائي">4 إبتدائي</option>
+                    <option value="5 إبتدائي">5 إبتدائي</option>
+                    <option value="6 إبتدائي">6 إبتدائي</option>
+                    <option value="1 إعدادي">1 إعدادي</option>
+                    <option value="2 إعدادي">2 إعدادي</option>
+                    <option value="3 إعدادي">3 إعدادي</option>
+                    <option value="1 ثانوي">1 ثانوي</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">المواعيد المتاحة لصفك</label>
+                <select id="groupSelect" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none text-sm">
+                    <option value="">برجاء اختيار الصف أولاً ليتم تحميل المواعيد...</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" 
+                    class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold p-4 rounded-xl transition duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg text-base">
+                تأكيد إرسال طلب التسجيل
+            </button>
+        </form>
+    </div>
+
     <script>
+        // ربط السيرفر ببياناتك الحقيقية المستخرجة من الصور
         const _supabase = supabase.createClient(
             "https://lhshvscofrestjvlespa.supabase.co",
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
         );
-        document.getElementById('gradeSelect').addEventListener('change', async (e) => {
-            const grade = e.target.value;
-            const groupSelect = document.getElementById('groupSelect');
-            if (!grade) {
-                groupSelect.innerHTML = '<option value="">اختر الميعاد</option>';
+
+        const gradeSelect = document.getElementById('gradeSelect');
+        const groupSelect = document.getElementById('groupSelect');
+        const regForm = document.getElementById('regForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // تحديث قائمة المجموعات فور اختيار الصف الدراسي
+        gradeSelect.addEventListener('change', async (e) => {
+            const selectedGrade = e.target.value;
+            
+            if (!selectedGrade) {
+                groupSelect.innerHTML = '<option value="">برجاء اختيار الصف أولاً ليتم تحميل المواعيد...</option>';
                 return;
             }
-            groupSelect.innerHTML = '<option value="">جاري تحميل المواعيد...</option>';
-            const { data } = await _supabase.from('groups').select('group_name').eq('grade_level', grade);
-            groupSelect.innerHTML = '<option value="">اختر الميعاد</option>';
+
+            groupSelect.innerHTML = '<option value="">⏳ جاري جلب مواعيد السيرفر الحالية...</option>';
+            
+            // فلترة المجموعات من جدول groups بناءً على grade_level المختار
+            const { data, error } = await _supabase
+                .from('groups')
+                .select('group_name')
+                .eq('grade_level', selectedGrade);
+
+            if (error) {
+                groupSelect.innerHTML = '<option value="">❌ فشل في تحميل المواعيد</option>';
+                return;
+            }
+
+            groupSelect.innerHTML = '<option value="">-- اختر الميعاد المناسب لك --</option>';
+            
             if (data && data.length > 0) {
-                data.forEach(g => groupSelect.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>');
+                data.forEach(item => {
+                    groupSelect.innerHTML += `<option value="${item.group_name}">${item.group_name}</option>`;
+                });
             } else {
-                groupSelect.innerHTML = '<option value="">التسجيل لسه المس مضفتش مجموعات</option>';
+                groupSelect.innerHTML = '<option value="">⚠️ عذراً، لا توجد مجموعات مضافة لهذا الصف حالياً</option>';
             }
         });
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
+
+        // تشغيل عملية التسجيل وفحص الحظر الذكي
+        regForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = "جاري الحفظ...";
-            const { error } = await _supabase.from('students').insert([{
-                name: document.getElementById('studentName').value,
-                phone: document.getElementById('parentPhone').value,
-                grade: document.getElementById('gradeSelect').value + " - " + document.getElementById('groupSelect').value
-            }]);
-            if (error) {
-                alert("حدث خطأ");
-                btn.disabled = false;
-                btn.innerText = "تسجيل";
+            
+            const name = document.getElementById('studentName').value.trim();
+            const phone = document.getElementById('parentPhone').value.trim();
+            const grade = gradeSelect.value;
+            const group = groupSelect.value;
+
+            // تغيير حالة الزر لتفادي الضغط المتكرر
+            submitBtn.disabled = true;
+            submitBtn.innerText = "⏳ جاري فحص الحساب والتسجيل...";
+
+            // 1. الفحص الذكي للحظر بناءً على رقم الهاتف وجدولك الحقيقي
+            const { data: checkUser, error: checkError } = await _supabase
+                .from('students_registration')
+                .select('status')
+                .eq('parent_phone', phone);
+
+            if (!checkError && checkUser && checkUser.length > 0) {
+                const currentStatus = checkUser[0].status;
+                if (currentStatus === 'blocked' || currentStatus === 'blocked_year' || currentStatus === 'blocked_forever') {
+                    alert("⚠️ عذراً، هذا الرقم محظور من التسجيل في المنصة بقرار من الإدارة.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "تأكيد إرسال طلب التسجيل";
+                    return;
+                }
+            }
+
+            // 2. إدخال البيانات لجدولك الحقيقي students_registration
+            const { error: insertError } = await _supabase
+                .from('students_registration')
+                .insert([{
+                    name: name,
+                    parent_phone: phone,
+                    grade: grade + " - " + group,
+                    status: 'active' // القيمة الافتراضية اللي شوفتها في صورك
+                }]);
+
+            if (insertError) {
+                alert("❌ حدث خطأ أثناء الاتصال بقاعدة البيانات، حاول مرة أخرى.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "تأكيد إرسال طلب التسجيل";
             } else {
-                alert("تم التسجيل بنجاح");
-                location.reload();
+                alert("🎉 مبروك! تم تسجيل بياناتك بنجاح في المجموعة المحددة.");
+                regForm.reset();
+                groupSelect.innerHTML = '<option value="">برجاء اختيار الصف أولاً ليتم تحميل المواعيد...</option>';
+                submitBtn.disabled = false;
+                submitBtn.innerText = "تأكيد إرسال طلب التسجيل";
             }
         });
     </script>
