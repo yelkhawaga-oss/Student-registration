@@ -2,101 +2,72 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الطلاب - ميس إنجليش</title>
+    <title>تسجيل الطلاب</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-    </style>
+    <style>body { font-family: sans-serif; background-color: #0f172a; color: #f8fafc; }</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="glass w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <h2 class="text-2xl font-bold text-center text-amber-400 mb-6">👑 استمارة حجز المجموعات الملكية 👑</h2>
-        <form id="regForm" class="space-y-4">
-            <div>
-                <label class="block text-slate-300 mb-2">اسم الطالب رباعي 👤</label>
-                <input type="text" id="studentName" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-            </div>
-            <div>
-                <label class="block text-slate-300 mb-2">رقم هاتف ولي الأمر 📞</label>
-                <input type="tel" id="parentPhone" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-            </div>
-            <div>
-                <label class="block text-slate-300 mb-2">اختر الصف الدراسي أو الميعاد 📚</label>
-                <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-                    <option value="">-- اضغط هنا للاختيار --</option>
-                    
-                    <!-- الصفوف الأساسية الثابتة -->
-                    <optgroup label="✨ الصفوف الدراسية الأساسية">
-                        <option value="1 إبتدائي">الصف الأول الابتدائي</option>
-                        <option value="2 إبتدائي">الصف الثاني الابتدائي</option>
-                        <option value="3 إبتدائي">الصف الثالث الابتدائي</option>
-                        <option value="4 إبتدائي">الصف الرابع الابتدائي</option>
-                        <option value="5 إبتدائي">الصف الخامس الابتدائي</option>
-                        <option value="6 إبتدائي">الصف السادس الابتدائي</option>
-                        <option value="1 إعدادي">الصف الأول الإعدادي</option>
-                        <option value="2 إعدادي">الصف الثاني الإعدادي</option>
-                        <option value="3 إعدادي">الصف الثالث الإعدادي</option>
-                        <option value="1 ثانوي">الصف الأول الثانوي</option>
-                    </optgroup>
-                    
-                    <!-- المجموعات الاختيارية اللي المس بتتحكم فيها -->
-                    <optgroup label="🗓️ مواعيد المجموعات المتاحة" id="dynamicOptGroup">
-                        <!-- لو مفيش بيانات هينزل السطر اللي أنت طلبته أوتوماتيك من الـ JavaScript -->
-                    </optgroup>
-                </select>
-            </div>
-            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">تأكيد الحجز الملوكي ✨</button>
-        </form>
-    </div>
-
+<body class="p-4 flex items-center justify-center min-h-screen">
+    <form id="regForm" class="w-full max-w-sm space-y-4">
+        <h2 class="text-xl font-bold text-center text-amber-400">استمارة تسجيل الطلاب</h2>
+        <input type="text" id="studentName" placeholder="اسم الطالب" required class="w-full bg-slate-800 p-3 rounded-lg">
+        <input type="tel" id="parentPhone" placeholder="رقم الهاتف" required class="w-full bg-slate-800 p-3 rounded-lg">
+        <select id="gradeSelect" required class="w-full bg-slate-800 p-3 rounded-lg">
+            <option value="">اختر الصف الدراسي</option>
+            <option value="1 إبتدائي">1 إبتدائي</option>
+            <option value="2 إبتدائي">2 إبتدائي</option>
+            <option value="3 إبتدائي">3 إبتدائي</option>
+            <option value="4 إبتدائي">4 إبتدائي</option>
+            <option value="5 إبتدائي">5 إبتدائي</option>
+            <option value="6 إبتدائي">6 إبتدائي</option>
+            <option value="1 إعدادي">1 إعدادي</option>
+            <option value="2 إعدادي">2 إعدادي</option>
+            <option value="3 إعدادي">3 إعدادي</option>
+            <option value="1 ثانوي">1 ثانوي</option>
+        </select>
+        <select id="groupSelect" required class="w-full bg-slate-800 p-3 rounded-lg">
+            <option value="">اختر الميعاد</option>
+        </select>
+        <button type="submit" id="submitBtn" class="w-full bg-amber-500 p-3 rounded-lg font-bold">تسجيل</button>
+    </form>
     <script>
-        const supabaseUrl = "https://lhshvscofrestjvlespa.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        async function loadCustomGroups() {
-            const optGroup = document.getElementById('dynamicOptGroup');
-            const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
-            
-            if (!error && data && data.length > 0) {
-                optGroup.innerHTML = ''; // نمسح أي حاجة قديمة
-                data.forEach(g => {
-                    optGroup.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>`;
-                });
-            } else {
-                // لو الجدول فاضي والمس مضافتش حاجة، يظهر السطر بتاعك هنا والكل يقرأه
-                optGroup.innerHTML = '<option value="" disabled>التسجيل لسه المس مضفتش مجموعات ⏳</option>';
+        const _supabase = supabase.createClient(
+            "https://lhshvscofrestjvlespa.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
+        );
+        document.getElementById('gradeSelect').addEventListener('change', async (e) => {
+            const grade = e.target.value;
+            const groupSelect = document.getElementById('groupSelect');
+            if (!grade) {
+                groupSelect.innerHTML = '<option value="">اختر الميعاد</option>';
+                return;
             }
-        }
-        loadCustomGroups();
-
+            groupSelect.innerHTML = '<option value="">جاري تحميل المواعيد...</option>';
+            const { data } = await _supabase.from('groups').select('group_name').eq('grade_level', grade);
+            groupSelect.innerHTML = '<option value="">اختر الميعاد</option>';
+            if (data && data.length > 0) {
+                data.forEach(g => groupSelect.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>');
+            } else {
+                groupSelect.innerHTML = '<option value="">التسجيل لسه المس مضفتش مجموعات</option>';
+            }
+        });
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "جاري الحفظ... ⏳";
-
-            const name = document.getElementById('studentName').value;
-            const phone = document.getElementById('parentPhone').value;
-            const grade = document.getElementById('studentGrade').value;
-
-            const { data, error } = await _supabase.from('students').insert([{ name, phone, grade }]);
-
+            btn.innerText = "جاري الحفظ...";
+            const { error } = await _supabase.from('students').insert([{
+                name: document.getElementById('studentName').value,
+                phone: document.getElementById('parentPhone').value,
+                grade: document.getElementById('gradeSelect').value + " - " + document.getElementById('groupSelect').value
+            }]);
             if (error) {
-                alert("حصلت مشكلة، جرب تاني يا بطل!");
+                alert("حدث خطأ");
                 btn.disabled = false;
-                btn.innerText = "تأكيد الحجز الملوكي ✨";
+                btn.innerText = "تسجيل";
             } else {
-                confetti();
-                alert("مبروك! تم تسجيلك بنجاح في مجموعات ميس إنجليش الملكية 🎉");
-                document.getElementById('regForm').reset();
-                btn.disabled = false;
-                btn.innerText = "تأكيد الحجز الملوكي ✨";
+                alert("تم التسجيل بنجاح");
+                location.reload();
             }
         });
     </script>
