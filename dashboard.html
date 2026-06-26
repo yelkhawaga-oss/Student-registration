@@ -31,24 +31,25 @@
             </div>
         </div>
 
+        <!-- إدارة مواعيد المجموعات الخاصة -->
         <div class="glass p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">➕ إضافة ميعاد أو مجموعة خاصة:</h3>
+                <h3 class="text-amber-400 font-bold mb-2 text-sm">➕ إضافة ميعاد مجموعة جديدة:</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="newGroupName" placeholder="مثال: مجموعة السبت والثلاثاء الساعة 4" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs flex-1 text-white focus:outline-none">
+                    <input type="text" id="newGroupName" placeholder="مثال: اثنين وخميس الساعة 4" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs flex-1 text-white focus:outline-none">
                     <button onclick="addNewGroup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold">إضافة</button>
                 </div>
             </div>
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">📋 المواعيد الخاصة المضافة حالياً:</h3>
-                <div class="flex flex-wrap gap-2" id="currentGroupsList">
-                </div>
+                <h3 class="text-amber-400 font-bold mb-2 text-sm">📋 المواعيد المضافة حالياً:</h3>
+                <div class="flex flex-wrap gap-2" id="currentGroupsList"></div>
             </div>
         </div>
 
+        <!-- فلاتر التصفية السريعة -->
         <div class="glass p-4 rounded-xl space-y-3">
-            <div class="text-xs text-amber-400 font-bold mb-1">تصفية سريعة حسب الصف أو المجموعة:</div>
-            <div class="flex flex-wrap gap-2" id="allFiltersContainer">
+            <div class="text-xs text-amber-400 font-bold mb-1">تصفية سريعة حسب الصف أو الميعاد:</div>
+            <div class="flex flex-wrap gap-2">
                 <button onclick="filterTable('')" class="bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs">الكل ✨</button>
                 <button onclick="filterTable('1 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">1 إبتدائي</button>
                 <button onclick="filterTable('2 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">2 إبتدائي</button>
@@ -56,7 +57,7 @@
                 <button onclick="filterTable('4 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">4 إبتدائي</button>
                 <button onclick="filterTable('5 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">5 إبتدائي</button>
                 <button onclick="filterTable('6 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">6 إبتدائي</button>
-                <button onclick="filterTable('1 whitespace-nowrap إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">1 إعدادي</button>
+                <button onclick="filterTable('1 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">1 إعدادي</button>
                 <button onclick="filterTable('2 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">2 إعدادي</button>
                 <button onclick="filterTable('3 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">3 إعدادي</button>
                 <button onclick="filterTable('1 ثانوي')" class="bg-blue-900 text-blue-200 px-3 py-1.5 rounded-lg text-xs font-bold">1 ثانوي 🎓</button>
@@ -64,18 +65,18 @@
             </div>
         </div>
 
+        <!-- الجدول -->
         <div class="glass rounded-2xl overflow-x-auto">
             <table class="w-full text-right border-collapse">
                 <thead>
                     <tr class="bg-slate-800 text-amber-400 border-b border-slate-700">
                         <th class="p-4">اسم الطالب</th>
                         <th class="p-4">رقم ولي الأمر</th>
-                        <th class="p-4">الصف / المجموعة</th>
+                        <th class="p-4">الصف / الميعاد</th>
                         <th class="p-4 text-center">إجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="studentsTable">
-                </tbody>
+                <tbody id="studentsTable"></tbody>
             </table>
         </div>
     </div>
@@ -103,12 +104,12 @@
 
         function changePassword() {
             const currentPass = localStorage.getItem('mrs_pass') || '4321';
-            const oldPassInput = prompt("أدخلي الرقم السري الحالي أولاً:");
+            const oldPassInput = prompt("أدخلي الرقم السري الحالي:");
             if (oldPassInput === currentPass) {
                 const newPass = prompt("أدخلي الرقم السري الجديد:");
                 if (newPass && newPass.trim() !== "") {
                     localStorage.setItem('mrs_pass', newPass.trim());
-                    alert(`تم الحفظ بنجاح!`);
+                    alert("تم الحفظ بنجاح!");
                 }
             } else {
                 alert("خطأ!");
@@ -152,7 +153,7 @@
         async function addNewGroup() {
             const input = document.getElementById('newGroupName');
             const groupName = input.value.trim();
-            if(!groupName) return alert("اكتبي الاسم أولاً");
+            if(!groupName) return alert("اكتبي الميعاد أولاً");
 
             const { error } = await _supabase.from('groups').insert([{ group_name: groupName }]);
             if(!error) {
@@ -162,7 +163,7 @@
         }
 
         async function deleteGroup(id) {
-            if(confirm("متأكدة من حذف هذا الميعاد المخصص؟")) {
+            if(confirm("هل أنتِ متأكدة من حذف هذا الميعاد؟")) {
                 const { error } = await _supabase.from('groups').delete().eq('id', id);
                 if(!error) fetchGroupsData();
             }
@@ -221,7 +222,5 @@
             }
         }
     </script>
-</body>
-</html>
 </body>
 </html>
