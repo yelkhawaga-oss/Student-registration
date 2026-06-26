@@ -77,7 +77,7 @@
     <div class="w-full max-w-xl text-center bg-slate-900 p-6 rounded-2xl border border-slate-700">
         <h3 class="text-lg font-bold text-white mb-2">للتواصل والاستفسارات</h3>
         <p class="text-amber-400 font-medium text-lg">📍 العنوان: القليوبية، بنها، الفلل</p>
-        <p class="text-slate-400 mt-1">📞 للتواصل عبر الواتساب: (أضف رقم المس هنا)</p>
+        <p class="text-slate-400 mt-2">📞 للتواصل عبر الواتساب: <span class="text-white font-bold" dir="ltr">+20 10 14445464</span></p>
     </div>
 
     <script>
@@ -93,12 +93,19 @@
             if (!grade) return groupSelect.innerHTML = '<option value="">اختر الصف أولاً...</option>';
             groupSelect.innerHTML = '<option value="">⏳ جاري التحميل...</option>';
             
-            const { data } = await _supabase.from('groups').select('group_name').eq('grade_level', grade);
+            const { data, error } = await _supabase.from('groups').select('group_name').eq('grade_level', grade);
+            
+            if (error) {
+                console.error("Error fetching groups:", error);
+                groupSelect.innerHTML = '<option value="">حدث خطأ في تحميل المواعيد</option>';
+                return;
+            }
+
             groupSelect.innerHTML = '<option value="">-- اختر الميعاد --</option>';
             if (data && data.length > 0) {
                 data.forEach(item => groupSelect.innerHTML += `<option value="${item.group_name}">${item.group_name}</option>`);
             } else {
-                groupSelect.innerHTML = '<option value="">لا توجد مواعيد حالياً</option>';
+                groupSelect.innerHTML = '<option value="">لا توجد مواعيد حالياً لهذا الصف</option>';
             }
         });
 
@@ -112,8 +119,14 @@
                 grade: document.getElementById('gradeSelect').value + " - " + document.getElementById('groupSelect').value
             }]);
             
-            if (error) alert("❌ خطأ في التسجيل!");
-            else { alert("✅ تم تسجيلك بنجاح!"); document.getElementById('regForm').reset(); }
+            if (error) {
+                console.error("Error inserting:", error);
+                alert("❌ خطأ في التسجيل!");
+            } else { 
+                alert("✅ تم تسجيلك بنجاح!"); 
+                document.getElementById('regForm').reset(); 
+                document.getElementById('groupSelect').innerHTML = '<option value="">اختر الصف أولاً...</option>';
+            }
         });
 
         // إلغاء التسجيل
