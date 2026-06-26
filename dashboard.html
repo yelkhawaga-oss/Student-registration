@@ -33,24 +33,35 @@
 
         <div class="glass p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">➕ إضافة مجموعة جديدة:</h3>
+                <h3 class="text-amber-400 font-bold mb-2 text-sm">➕ إضافة ميعاد أو مجموعة خاصة:</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="newGroupName" placeholder="مثال: السبت والثلاثاء الساعة 4" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs flex-1 text-white focus:outline-none">
+                    <input type="text" id="newGroupName" placeholder="مثال: مجموعة السبت والثلاثاء الساعة 4" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs flex-1 text-white focus:outline-none">
                     <button onclick="addNewGroup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold">إضافة</button>
                 </div>
             </div>
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">📋 المجموعات الحالية (اضغطي لحذف مجموعة):</h3>
+                <h3 class="text-amber-400 font-bold mb-2 text-sm">📋 المواعيد الخاصة المضافة حالياً:</h3>
                 <div class="flex flex-wrap gap-2" id="currentGroupsList">
-                    </div>
+                </div>
             </div>
         </div>
 
         <div class="glass p-4 rounded-xl space-y-3">
-            <div class="text-xs text-amber-400 font-bold mb-1">تصفية سريعة حسب المجموعات المضافة:</div>
-            <div class="flex flex-wrap gap-2" id="dynamicFilters">
+            <div class="text-xs text-amber-400 font-bold mb-1">تصفية سريعة حسب الصف أو المجموعة:</div>
+            <div class="flex flex-wrap gap-2" id="allFiltersContainer">
                 <button onclick="filterTable('')" class="bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs">الكل ✨</button>
-                </div>
+                <button onclick="filterTable('1 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">1 إبتدائي</button>
+                <button onclick="filterTable('2 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">2 إبتدائي</button>
+                <button onclick="filterTable('3 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">3 إبتدائي</button>
+                <button onclick="filterTable('4 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">4 إبتدائي</button>
+                <button onclick="filterTable('5 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">5 إبتدائي</button>
+                <button onclick="filterTable('6 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">6 إبتدائي</button>
+                <button onclick="filterTable('1 whitespace-nowrap إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">1 إعدادي</button>
+                <button onclick="filterTable('2 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">2 إعدادي</button>
+                <button onclick="filterTable('3 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">3 إعدادي</button>
+                <button onclick="filterTable('1 ثانوي')" class="bg-blue-900 text-blue-200 px-3 py-1.5 rounded-lg text-xs font-bold">1 ثانوي 🎓</button>
+                <span id="dynamicFilters" class="flex flex-wrap gap-2"></span>
+            </div>
         </div>
 
         <div class="glass rounded-2xl overflow-x-auto">
@@ -59,12 +70,12 @@
                     <tr class="bg-slate-800 text-amber-400 border-b border-slate-700">
                         <th class="p-4">اسم الطالب</th>
                         <th class="p-4">رقم ولي الأمر</th>
-                        <th class="p-4">المجموعة</th>
+                        <th class="p-4">الصف / المجموعة</th>
                         <th class="p-4 text-center">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="studentsTable">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
@@ -86,23 +97,21 @@
                 fetchGroupsData();
                 fetchStudentsData();
             } else {
-                alert("الرقم السري غلط يا مس! ارجعي لعموري المبرمج 👨‍💻");
+                alert("الرقم السري غلط يا مس!");
             }
         }
 
         function changePassword() {
             const currentPass = localStorage.getItem('mrs_pass') || '4321';
-            const oldPassInput = prompt("لحماية البيانات، أدخلي الرقم السري الحالي أولاً:");
-            if (oldPassInput === null) return;
-
+            const oldPassInput = prompt("أدخلي الرقم السري الحالي أولاً:");
             if (oldPassInput === currentPass) {
-                const newPass = prompt("صحيح! أدخلي الآن الرقم السري الجديد:");
+                const newPass = prompt("أدخلي الرقم السري الجديد:");
                 if (newPass && newPass.trim() !== "") {
                     localStorage.setItem('mrs_pass', newPass.trim());
-                    alert(`تم تغيير الرقم السري بنجاح إلى: ${newPass}`);
+                    alert(`تم الحفظ بنجاح!`);
                 }
             } else {
-                alert("الرقم السري الحالي غير صحيح! لن يتم التغيير.");
+                alert("خطأ!");
             }
         }
 
@@ -112,7 +121,6 @@
             document.getElementById('passInput').value = '';
         }
 
-        // جلب المجموعات وإدارتها
         async function fetchGroupsData() {
             const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
             if (!error) {
@@ -126,19 +134,17 @@
             const filtersContainer = document.getElementById('dynamicFilters');
             
             listContainer.innerHTML = '';
-            filtersContainer.innerHTML = '<button onclick="filterTable(\'\')" class="bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs">الكل ✨</button>';
+            filtersContainer.innerHTML = '';
             
             allGroups.forEach(g => {
-                // عرض المجموعات في جزء الإدارة
                 listContainer.innerHTML += `
                     <span class="bg-slate-800 text-slate-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 border border-slate-700">
                         ${g.group_name}
                         <button onclick="deleteGroup(${g.id})" class="text-red-500 font-bold hover:text-red-400">×</button>
                     </span>
                 `;
-                // إضافة زرار Sort أوتوماتيك للمجموعة دي
                 filtersContainer.innerHTML += `
-                    <button onclick="filterTable('${g.group_name}')" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs">${g.group_name}</button>
+                    <button onclick="filterTable('${g.group_name}')" class="bg-purple-900 text-purple-200 px-3 py-1.5 rounded-lg text-xs border border-purple-700">${g.group_name}</button>
                 `;
             });
         }
@@ -146,25 +152,22 @@
         async function addNewGroup() {
             const input = document.getElementById('newGroupName');
             const groupName = input.value.trim();
-            if(!groupName) return alert("اكتبي اسم المجموعة الأول يا مس!");
+            if(!groupName) return alert("اكتبي الاسم أولاً");
 
-            const { data, error } = await _supabase.from('groups').insert([{ group_name: groupName }]);
+            const { error } = await _supabase.from('groups').insert([{ group_name: groupName }]);
             if(!error) {
                 input.value = '';
                 fetchGroupsData();
-            } else {
-                alert("حصلت مشكلة أثناء إضافة المجموعة!");
             }
         }
 
         async function deleteGroup(id) {
-            if(confirm("لو مسحتي المجموعة دي، هتتمسح من قائمة الطلاب برضه. متأكدة؟")) {
+            if(confirm("متأكدة من حذف هذا الميعاد المخصص؟")) {
                 const { error } = await _supabase.from('groups').delete().eq('id', id);
                 if(!error) fetchGroupsData();
             }
         }
 
-        // جلب الطلاب والجدول
         async function fetchStudentsData() {
             const tbody = document.getElementById('studentsTable');
             tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4">جاري تحميل البيانات... ⏳</td></tr>`;
@@ -209,7 +212,7 @@
         }
 
         async function deleteStudent(id) {
-            if(confirm("هل أنتِ متأكدة من حذف هذا الطالب من الكشف؟")) {
+            if(confirm("هل أنتِ متأكدة من الحذف؟")) {
                 const { error } = await _supabase.from('students').delete().eq('id', id);
                 if(!error) {
                     allStudents = allStudents.filter(st => st.id !== id);
@@ -218,5 +221,7 @@
             }
         }
     </script>
+</body>
+</html>
 </body>
 </html>
