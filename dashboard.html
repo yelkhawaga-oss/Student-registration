@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم ميس إنجليش 👑</title>
+    <title>لوحة تحكم مس إنجلش 👑</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,17 +13,15 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <!-- صفحة تسجيل الدخول -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center">
         <div class="glass w-full max-w-md rounded-2xl p-6 shadow-2xl text-center">
-            <h2 class="text-2xl font-bold text-amber-400 mb-6">🔐 الدخول للوحة التحكم (ميس إنجليش)</h2>
+            <h2 class="text-2xl font-bold text-amber-400 mb-6">🔐 الدخول للوحة التحكم (مس إنجلش)</h2>
             <input type="password" id="passInput" placeholder="أدخلي الرقم السري يا مس" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none mb-4">
             <button onclick="checkPass()" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl shadow-lg">دخول 🔓</button>
             <a href="index.html" class="block text-sm text-slate-400 mt-4 hover:underline">⬅️ العودة لصفحة الطلاب</a>
         </div>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
     <div id="dashScreen" class="hidden max-w-6xl mx-auto space-y-6">
         <div class="flex flex-col md:flex-row justify-between items-center glass p-6 rounded-2xl gap-4">
             <h1 class="text-2xl font-bold text-amber-400">👑 كشوفات الطلاب المحجوزين</h1>
@@ -33,31 +31,35 @@
             </div>
         </div>
 
-        <!-- فلاتر الصفوف -->
-        <div class="grid grid-cols-2 md:grid-cols-6 gap-2" id="filterButtons">
-            <button onclick="loadStudents('')" class="bg-amber-500 text-black font-bold py-2 rounded-xl">الكل ✨</button>
-            <button onclick="loadStudents('1')" class="bg-slate-800 py-2 rounded-xl">أولى ابتدائي</button>
-            <button onclick="loadStudents('2')" class="bg-slate-800 py-2 rounded-xl">تانية ابتدائي</button>
-            <button onclick="loadStudents('3')" class="bg-slate-800 py-2 rounded-xl">تالتة ابتدائي</button>
-            <button onclick="loadStudents('4')" class="bg-slate-800 py-2 rounded-xl">رابعة ابتدائي</button>
-            <button onclick="loadStudents('5')" class="bg-slate-800 py-2 rounded-xl">خامسة ابتدائي</button>
-            <button onclick="loadStudents('6')" class="bg-slate-800 py-2 rounded-xl">ستة ابتدائي</button>
+        <div class="glass p-4 rounded-xl space-y-3">
+            <div class="text-xs text-amber-400 font-bold mb-1">تصفية حسب المرحلة الدراسية:</div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="loadStudents('')" class="bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs">الكل ✨</button>
+                <button onclick="loadStudents('1')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">1 إبتدائي</button>
+                <button onclick="loadStudents('2')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">2 إبتدائي</button>
+                <button onclick="loadStudents('3')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">3 إبتدائي</button>
+                <button onclick="loadStudents('4')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">4 إبتدائي</button>
+                <button onclick="loadStudents('5')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">5 إبتدائي</button>
+                <button onclick="loadStudents('6')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">6 إبتدائي</button>
+                <button onclick="loadStudents('7')" class="bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs">1 إعدادي</button>
+                <button onclick="loadStudents('8')" class="bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs">2 إعدادي</button>
+                <button onclick="loadStudents('9')" class="bg-slate-700 text-white px-3 py-1.5 rounded-lg text-xs">3 إعدادي</button>
+                <button onclick="loadStudents('10')" class="bg-blue-900 text-blue-200 px-3 py-1.5 rounded-lg text-xs font-bold">1 ثانوي 🎓</button>
+            </div>
         </div>
 
-        <!-- الجدول -->
         <div class="glass rounded-2xl overflow-x-auto">
             <table class="w-full text-right border-collapse">
                 <thead>
                     <tr class="bg-slate-800 text-amber-400 border-b border-slate-700">
                         <th class="p-4">اسم الطالب</th>
                         <th class="p-4">رقم ولي الأمر</th>
-                        <th class="p-4">الصف</th>
+                        <th class="p-4">الصف الدراسي</th>
                         <th class="p-4 text-center">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="studentsTable">
-                    <!-- البيانات هتنزل هنا -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
@@ -66,6 +68,13 @@
         const supabaseUrl = "https://lhshvscofrestjvlespa.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const gradeNames = {
+            "1": "الصف الأول الابتدائي", "2": "الصف الثاني الابتدائي", "3": "الصف الثالث الابتدائي",
+            "4": "الصف الرابع الابتدائي", "5": "الصف الخامس الابتدائي", "6": "الصف السادس الابتدائي",
+            "7": "الصف الأول الإعدادي", "8": "الصف الثاني الإعدادي", "9": "الصف الثالث الإعدادي",
+            "10": "الصف الأول الثانوي"
+        };
 
         function checkPass() {
             const pass = document.getElementById('passInput').value;
@@ -80,10 +89,22 @@
         }
 
         function changePassword() {
-            const newPass = prompt("أدخلي الرقم السري الجديد:");
-            if (newPass && newPass.trim() !== "") {
-                localStorage.setItem('mrs_pass', newPass.trim());
-                alert(`تم تغيير الرقم السري بنجاح إلى: ${newPass}`);
+            const currentPass = localStorage.getItem('mrs_pass') || '4321';
+            // 🔐 طلب الرقم السري الحالي أولاً للحماية
+            const oldPassInput = prompt("لحماية البيانات، أدخلي الرقم السري الحالي أولاً:");
+            
+            if (oldPassInput === null) return; // لو المس عملت Cancel
+
+            if (oldPassInput === currentPass) {
+                const newPass = prompt("صحيح! أدخلي الآن الرقم السري الجديد:");
+                if (newPass && newPass.trim() !== "") {
+                    localStorage.setItem('mrs_pass', newPass.trim());
+                    alert(`تم تغيير الرقم السري بنجاح إلى: ${newPass}`);
+                } else {
+                    alert("لم يتم تغيير شيء، الرقم السري الجديد لا يمكن أن يكون فارغاً.");
+                }
+            } else {
+                alert("الرقم السري الحالي غير صحيح! لن يتم تغيير الرقم السري.");
             }
         }
 
@@ -108,7 +129,7 @@
 
             tbody.innerHTML = '';
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا يوجد طلاب مسجلين في هذا الصف بعد.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا يوجد طلاب مسجلين في هذا صف بعد.</td></tr>`;
                 return;
             }
 
@@ -117,7 +138,7 @@
                     <tr class="border-b border-slate-800 hover:bg-slate-800/50">
                         <td class="p-4 font-bold">${st.name}</td>
                         <td class="p-4 text-slate-300"><a href="tel:${st.phone}" class="hover:underline text-blue-400">${st.phone}</a></td>
-                        <td class="p-4 text-amber-400 font-semibold">الصف ${st.grade}</td>
+                        <td class="p-4 text-amber-400 font-semibold">${gradeNames[st.grade] || ('الصف ' + st.grade)}</td>
                         <td class="p-4 text-center">
                             <button onclick="deleteStudent(${st.id}, '${gradeFilter}')" class="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-lg text-xs hover:bg-red-600 hover:text-white transition">حذف</button>
                         </td>
