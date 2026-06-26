@@ -29,12 +29,19 @@
                 <label class="block text-slate-300 mb-2">السنة الدراسية للطالب 📚</label>
                 <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
                     <option value="">-- اختر الصف الدراسي --</option>
+                    <!-- الابتدائي -->
                     <option value="1">الصف الأول الابتدائي</option>
                     <option value="2">الصف الثاني الابتدائي</option>
                     <option value="3">الصف الثالث الابتدائي</option>
                     <option value="4">الصف الرابع الابتدائي</option>
                     <option value="5">الصف الخامس الابتدائي</option>
                     <option value="6">الصف السادس الابتدائي</option>
+                    <!-- الإعدادي -->
+                    <option value="7">الصف الأول الإعدادي</option>
+                    <option value="8">الصف الثاني الإعدادي</option>
+                    <option value="9">الصف الثالث الإعدادي</option>
+                    <!-- الثانوي -->
+                    <option value="10">الصف الأول الثانوي</option>
                 </select>
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">تأكيد الحجز الملوكي ✨</button>
@@ -42,7 +49,6 @@
     </div>
 
     <script>
-        // ربط السوبابيز المباشر
         const supabaseUrl = "https://lhshvscofrestjvlespa.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
