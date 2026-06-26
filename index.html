@@ -26,22 +26,9 @@
                 <input type="tel" id="parentPhone" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
             </div>
             <div>
-                <label class="block text-slate-300 mb-2">السنة الدراسية للطالب 📚</label>
+                <label class="block text-slate-300 mb-2">اختر المجموعة والميعاد 📚</label>
                 <select id="studentGrade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
-                    <option value="">-- اختر الصف الدراسي --</option>
-                    <!-- الابتدائي -->
-                    <option value="1">الصف الأول الابتدائي</option>
-                    <option value="2">الصف الثاني الابتدائي</option>
-                    <option value="3">الصف الثالث الابتدائي</option>
-                    <option value="4">الصف الرابع الابتدائي</option>
-                    <option value="5">الصف الخامس الابتدائي</option>
-                    <option value="6">الصف السادس الابتدائي</option>
-                    <!-- الإعدادي -->
-                    <option value="7">الصف الأول الإعدادي</option>
-                    <option value="8">الصف الثاني الإعدادي</option>
-                    <option value="9">الصف الثالث الإعدادي</option>
-                    <!-- الثانوي -->
-                    <option value="10">الصف الأول الثانوي</option>
+                    <option value="">-- جاري تحميل المجموعات المتاحة... --</option>
                 </select>
             </div>
             <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold py-3 rounded-xl shadow-lg transform transition active:scale-95">تأكيد الحجز الملوكي ✨</button>
@@ -53,11 +40,28 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        // جلب المجموعات اللي المس ضافتها وعرضها في القائمة أوتوماتيك
+        async function loadGroupsIntoSelect() {
+            const select = document.getElementById('studentGrade');
+            const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
+            
+            if (error || !data || data.length === 0) {
+                select.innerHTML = '<option value="">لا توجد مجموعات متاحة حالياً</option>';
+                return;
+            }
+            
+            select.innerHTML = '<option value="">-- اضغط هنا لاختيار مجموعتك --</option>';
+            data.forEach(g => {
+                select.innerHTML += `<option value="${g.group_name}">${g.group_name} 🗓️</option>`;
+            });
+        }
+        loadGroupsIntoSelect();
+
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "جاري إرسال بياناتك للمس... ⏳";
+            btn.innerText = "جاري الحفظ... ⏳";
 
             const name = document.getElementById('studentName').value;
             const phone = document.getElementById('parentPhone').value;
@@ -66,7 +70,7 @@
             const { data, error } = await _supabase.from('students').insert([{ name, phone, grade }]);
 
             if (error) {
-                alert("حصلت مشكلة صغننة، جرب تاني يا بطل!");
+                alert("حصلت مشكلة في السيرفر، جرب تاني يا بطل!");
                 btn.disabled = false;
                 btn.innerText = "تأكيد الحجز الملوكي ✨";
             } else {
