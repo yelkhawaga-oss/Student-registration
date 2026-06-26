@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة حماية وتحكم الملكية | ميس دينا فتحي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Cairo', sans-serif; }</style>
+</head>
+<body class="bg-[#050507] min-h-screen text-slate-100 p-4 md:p-8 flex items-center justify-center" id="mainBody">
+
+    <div id="authScreen" class="w-full max-w-md bg-[#09090b] border border-amber-500/10 rounded-2xl p-6 shadow-2xl text-center">
+        <div class="w-16 h-16 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🔒</div>
+        <h2 class="text-xl font-bold text-white mb-2">منطقة محمية وخاصة</h2>
+        <form id="authForm" class="space-y-4">
+            <input type="password" id="secretCodeInput" required class="w-full bg-[#0d0d11] border border-slate-700 rounded-xl px-4 py-3 text-center text-white text-lg focus:outline-none focus:border-amber-500 tracking-widest" placeholder="••••">
+            <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-extrabold py-3 rounded-xl shadow-lg">تسجيل الدخول بأمان 👑</button>
+        </form>
+        <p id="authError" class="text-rose-400 text-xs mt-3 hidden">⚠️ الكود السري غير صحيح!</p>
+    </div>
+
+    <div id="dashboardScreen" class="w-full max-w-6xl mx-auto hidden self-start">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800/60 pb-6 mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-amber-400">لوحة تحكم ميس دينا 👋</h1>
+                <p class="text-slate-400 text-sm mt-2">نظام إدارة الطلاب والمجموعات الدراسية</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="logout()" class="bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 border border-rose-950/30 px-4 py-2 rounded-xl text-sm font-semibold transition">Log out</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-[#09090b] border border-amber-500/10 rounded-2xl p-6 shadow-xl md:col-span-1">
+                <h3 class="text-md font-bold text-amber-400 mb-4">✨ إضافة مجموعة جديدة</h3>
+                <form id="groupForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-2">أيام الموعد والساعة</label>
+                        <input type="text" id="groupTime" required class="w-full bg-[#0d0d11] border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-amber-500 focus:outline-none" placeholder="">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-2">التصنيف (الصف الدراسي)</label>
+                        <select id="groupGrade" required class="w-full bg-[#0d0d11] border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-amber-500 focus:outline-none">
+                            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                            <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                            <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                            <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                            <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                            <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-bold py-2.5 rounded-xl text-sm hover:from-amber-500 transition">تأكيد وإضافة 🚀</button>
+                </form>
+            </div>
+
+            <div class="bg-[#09090b] border border-amber-500/10 rounded-2xl p-6 shadow-xl md:col-span-2">
+                <h3 class="text-md font-bold text-amber-400 mb-4">📋 المجموعات الحالية النشطة</h3>
+                <div class="overflow-y-auto max-h-[180px] space-y-2" id="activeGroupsList"></div>
+            </div>
+        </div>
+
+        <div class="bg-[#09090b] border border-amber-500/10 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-bold text-white">كشف الطلاب والحجز</h3>
+                <span class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full border border-amber-500/20">إجمالي الطلاب: <span id="totalStudents">0</span></span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-slate-300 text-sm border-b border-slate-800">
+                            <th class="p-4 font-semibold">اسم الطالب</th>
+                            <th class="p-4 font-semibold">الصف الدراسي</th>
+                            <th class="p-4 font-semibold">المجموعة المختارة</th>
+                            <th class="p-4 font-semibold">رقم ولي الأمر</th>
+                            <th class="p-4 font-semibold text-center">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody" class="text-sm divide-y divide-slate-800 text-slate-300"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://gxmadpzxcrfjuciclqhi.supabase.co/rest/v1";
+        const SUPABASE_KEY = "sb_publishable_wyVyUG_RVd8nb2xq1Hmlpw_43HsqoPJ";
+
+        window.onload = function() { if (localStorage.getItem('isLoggedIn') === 'true') { showDashboard(); } };
+        document.getElementById('authForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (document.getElementById('secretCodeInput').value === "4321") { localStorage.setItem('isLoggedIn', 'true'); showDashboard(); }
+        });
+
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.body.classList.remove('items-center', 'justify-center');
+            loadStudents();
+            loadGroups();
+        }
+
+        async function loadGroups() {
+            const groupsList = document.getElementById('activeGroupsList');
+            try {
+                const response = await fetch(`${SUPABASE_URL}/groups`, {
+                    method: 'GET',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                if (response.ok) {
+                    const groups = await response.json();
+                    if(groups.length === 0) { groupsList.innerHTML = '<p class="text-xs text-slate-500">لا توجد مجموعات مضافة حالياً.</p>'; return; }
+                    groupsList.innerHTML = groups.map(g => `
+                        <div class="flex justify-between items-center bg-[#0d0d11] border border-slate-800 p-3 rounded-xl">
+                            <div>
+                                <span class="text-sm text-white font-medium">${g.group_info}</span>
+                                <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded mr-2">${g.target_grade}</span>
+                            </div>
+                            <button onclick="deleteGroup('${g.id}')" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 text-xs px-2.5 py-1 rounded-lg border border-rose-900/30 transition">حذف ❌</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteGroup(id) {
+            if(confirm('هل أنت متأكد من حذف هذه المجموعة؟')) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/groups?id=eq.${id}`, {
+                        method: 'DELETE',
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    });
+                    if(response.ok) { alert('تم الحذف!'); loadGroups(); }
+                } catch(e) { alert('خطأ'); }
+            }
+        }
+
+        document.getElementById('groupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const time = document.getElementById('groupTime').value.trim();
+            const grade = document.getElementById('groupGrade').value;
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/groups`, {
+                    method: 'POST',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ group_info: time, target_grade: grade })
+                });
+                if (response.ok) { alert('تم إضافة المجموعة بنجاح! 🎉'); document.getElementById('groupForm').reset(); loadGroups(); }
+            } catch (err) { alert('خطأ'); }
+        });
+
+        async function loadStudents() {
+            const tableBody = document.getElementById('studentsTableBody');
+            try {
+                const response = await fetch(`${SUPABASE_URL}/students_registration?order=created_at.desc`, {
+                    method: 'GET',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                if (response.ok) {
+                    const students = await response.json();
+                    document.getElementById('totalStudents').innerText = students.length;
+                    tableBody.innerHTML = students.map(student => `
+                        <tr class="hover:bg-slate-900/60 transition-colors">
+                            <td class="p-4 font-medium text-white">${student.student_name}</td>
+                            <td class="p-4"><span class="text-amber-400 bg-amber-500/5 border border-amber-500/10 px-2 py-0.5 rounded text-xs">${student.grade}</span></td>
+                            <td class="p-4 text-slate-300 font-medium">${student.selected_group || 'لم يحدد مجموعة'}</td>
+                            <td class="p-4" dir="ltr">${student.parent_phone}</td>
+                            <td class="p-4 text-center">
+                                <button onclick="cancelReg('${student.id}')" class="bg-slate-900 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg text-xs">Cancel</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { tableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">خطأ في التحميل</td></tr>'; }
+        }
+
+        async function cancelReg(id) {
+            if(confirm('هل تريد إلغاء حجز هذا الطالب؟')) {
+                try {
+                    await fetch(`${SUPABASE_URL}/students_registration?id=eq.${id}`, {
+                        method: 'DELETE',
+                        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                    });
+                    loadStudents();
+                } catch(e) { alert('خطأ'); }
+            }
+        }
+
+        function logout() { localStorage.setItem('isLoggedIn', 'false'); location.reload(); }
+    </script>
+</body>
+  </html>
+  
