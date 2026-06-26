@@ -3,224 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم ميس إنجليش 👑</title>
+    <title>استمارة التسجيل الملكية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            color: #f8fafc; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            min-height: 100vh;
+        }
+        .card { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        input, select {
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center">
-        <div class="glass w-full max-w-md rounded-2xl p-6 shadow-2xl text-center">
-            <h2 class="text-2xl font-bold text-amber-400 mb-6">🔐 الدخول للوحة التحكم (ميس إنجليش)</h2>
-            <input type="password" id="passInput" placeholder="أدخلي الرقم السري يا مس" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:outline-none mb-4">
-            <button onclick="checkPass()" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl shadow-lg">دخول 🔓</button>
-            <a href="index.html" class="block text-sm text-slate-400 mt-4 hover:underline">⬅️ العودة لصفحة الطلاب</a>
-        </div>
-    </div>
+<body class="p-4 flex items-center justify-center">
 
-    <div id="dashScreen" class="hidden max-w-6xl mx-auto space-y-6">
-        <div class="flex flex-col md:flex-row justify-between items-center glass p-6 rounded-2xl gap-4">
-            <h1 class="text-2xl font-bold text-amber-400">👑 كشوفات الطلاب والمجموعات</h1>
-            <div class="flex gap-2">
-                <button onclick="changePassword()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold">🔧 تغيير الرقم السري</button>
-                <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold">خروج Safe 🚪</button>
-            </div>
-        </div>
-
-        <!-- إدارة مواعيد المجموعات الخاصة -->
-        <div class="glass p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card w-full max-w-lg rounded-3xl p-8">
+        <h2 class="text-3xl font-black text-center text-amber-500 mb-8">تسجيل طلاب ميس إنجليش</h2>
+        
+        <form id="regForm" class="space-y-6">
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">➕ إضافة ميعاد مجموعة جديدة:</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="newGroupName" placeholder="مثال: اثنين وخميس الساعة 4" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs flex-1 text-white focus:outline-none">
-                    <button onclick="addNewGroup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold">إضافة</button>
-                </div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">اسم الطالب بالكامل</label>
+                <input type="text" id="name" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
             </div>
+
             <div>
-                <h3 class="text-amber-400 font-bold mb-2 text-sm">📋 المواعيد المضافة حالياً:</h3>
-                <div class="flex flex-wrap gap-2" id="currentGroupsList"></div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">رقم هاتف ولي الأمر</label>
+                <input type="tel" id="phone" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
             </div>
-        </div>
 
-        <!-- فلاتر التصفية السريعة -->
-        <div class="glass p-4 rounded-xl space-y-3">
-            <div class="text-xs text-amber-400 font-bold mb-1">تصفية سريعة حسب الصف أو الميعاد:</div>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="filterTable('')" class="bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs">الكل ✨</button>
-                <button onclick="filterTable('1 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">1 إبتدائي</button>
-                <button onclick="filterTable('2 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">2 إبتدائي</button>
-                <button onclick="filterTable('3 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">3 إبتدائي</button>
-                <button onclick="filterTable('4 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">4 إبتدائي</button>
-                <button onclick="filterTable('5 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">5 إبتدائي</button>
-                <button onclick="filterTable('6 إبتدائي')" class="bg-slate-800 px-3 py-1.5 rounded-lg text-xs">6 إبتدائي</button>
-                <button onclick="filterTable('1 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">1 إعدادي</button>
-                <button onclick="filterTable('2 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">2 إعدادي</button>
-                <button onclick="filterTable('3 إعدادي')" class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs">3 إعدادي</button>
-                <button onclick="filterTable('1 ثانوي')" class="bg-blue-900 text-blue-200 px-3 py-1.5 rounded-lg text-xs font-bold">1 ثانوي 🎓</button>
-                <span id="dynamicFilters" class="flex flex-wrap gap-2"></span>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">الصف الدراسي</label>
+                <select id="grade" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
+                    <option value="">-- اختار صفك --</option>
+                    <option value="1 إبتدائي">1 إبتدائي</option>
+                    <option value="2 إبتدائي">2 إبتدائي</option>
+                    <option value="3 إبتدائي">3 إبتدائي</option>
+                    <option value="4 إبتدائي">4 إبتدائي</option>
+                    <option value="5 إبتدائي">5 إبتدائي</option>
+                    <option value="6 إبتدائي">6 إبتدائي</option>
+                    <option value="1 إعدادي">1 إعدادي</option>
+                    <option value="2 إعدادي">2 إعدادي</option>
+                    <option value="3 إعدادي">3 إعدادي</option>
+                    <option value="1 ثانوي">1 ثانوي</option>
+                </select>
             </div>
-        </div>
 
-        <!-- الجدول -->
-        <div class="glass rounded-2xl overflow-x-auto">
-            <table class="w-full text-right border-collapse">
-                <thead>
-                    <tr class="bg-slate-800 text-amber-400 border-b border-slate-700">
-                        <th class="p-4">اسم الطالب</th>
-                        <th class="p-4">رقم ولي الأمر</th>
-                        <th class="p-4">الصف / الميعاد</th>
-                        <th class="p-4 text-center">إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="studentsTable"></tbody>
-            </table>
-        </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">ميعاد المجموعة</label>
+                <select id="group" required class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-white outline-none">
+                    <option value="">اختار الصف أولاً...</option>
+                </select>
+            </div>
+
+            <button type="submit" id="btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-black p-4 rounded-2xl transition duration-300 transform hover:scale-105 active:scale-95">
+                تأكيد التسجيل الآن
+            </button>
+        </form>
     </div>
 
     <script>
-        const supabaseUrl = "https://lhshvscofrestjvlespa.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A";
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        let allStudents = [];
-        let allGroups = [];
+        const sb = supabase.createClient(
+            "https://lhshvscofrestjvlespa.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
+        );
 
-        function checkPass() {
-            const pass = document.getElementById('passInput').value;
-            const currentPass = localStorage.getItem('mrs_pass') || '4321';
-            if (pass === currentPass) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('dashScreen').classList.remove('hidden');
-                fetchGroupsData();
-                fetchStudentsData();
-            } else {
-                alert("الرقم السري غلط يا مس!");
-            }
-        }
-
-        function changePassword() {
-            const currentPass = localStorage.getItem('mrs_pass') || '4321';
-            const oldPassInput = prompt("أدخلي الرقم السري الحالي:");
-            if (oldPassInput === currentPass) {
-                const newPass = prompt("أدخلي الرقم السري الجديد:");
-                if (newPass && newPass.trim() !== "") {
-                    localStorage.setItem('mrs_pass', newPass.trim());
-                    alert("تم الحفظ بنجاح!");
-                }
-            } else {
-                alert("خطأ!");
-            }
-        }
-
-        function logout() {
-            document.getElementById('dashScreen').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('passInput').value = '';
-        }
-
-        async function fetchGroupsData() {
-            const { data, error } = await _supabase.from('groups').select('*').order('created_at', { ascending: true });
-            if (!error) {
-                allGroups = data;
-                renderGroupsSection();
-            }
-        }
-
-        function renderGroupsSection() {
-            const listContainer = document.getElementById('currentGroupsList');
-            const filtersContainer = document.getElementById('dynamicFilters');
+        // تحميل المجموعات بناءً على الصف
+        document.getElementById('grade').addEventListener('change', async (e) => {
+            const grp = document.getElementById('group');
+            grp.innerHTML = '<option>جاري التحميل...</option>';
             
-            listContainer.innerHTML = '';
-            filtersContainer.innerHTML = '';
+            const { data } = await sb.from('groups')
+                .select('group_name')
+                .eq('grade_level', e.target.value);
             
-            allGroups.forEach(g => {
-                listContainer.innerHTML += `
-                    <span class="bg-slate-800 text-slate-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 border border-slate-700">
-                        ${g.group_name}
-                        <button onclick="deleteGroup(${g.id})" class="text-red-500 font-bold hover:text-red-400">×</button>
-                    </span>
-                `;
-                filtersContainer.innerHTML += `
-                    <button onclick="filterTable('${g.group_name}')" class="bg-purple-900 text-purple-200 px-3 py-1.5 rounded-lg text-xs border border-purple-700">${g.group_name}</button>
-                `;
-            });
-        }
-
-        async function addNewGroup() {
-            const input = document.getElementById('newGroupName');
-            const groupName = input.value.trim();
-            if(!groupName) return alert("اكتبي الميعاد أولاً");
-
-            const { error } = await _supabase.from('groups').insert([{ group_name: groupName }]);
-            if(!error) {
-                input.value = '';
-                fetchGroupsData();
-            }
-        }
-
-        async function deleteGroup(id) {
-            if(confirm("هل أنتِ متأكدة من حذف هذا الميعاد؟")) {
-                const { error } = await _supabase.from('groups').delete().eq('id', id);
-                if(!error) fetchGroupsData();
-            }
-        }
-
-        async function fetchStudentsData() {
-            const tbody = document.getElementById('studentsTable');
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4">جاري تحميل البيانات... ⏳</td></tr>`;
-
-            const { data, error } = await _supabase.from('students').select('*').order('created_at', { ascending: false });
-            if (!error) {
-                allStudents = data;
-                renderTable(allStudents);
-            }
-        }
-
-        function renderTable(dataArray) {
-            const tbody = document.getElementById('studentsTable');
-            tbody.innerHTML = '';
-
-            if (dataArray.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-400">لا يوجد طلاب مسجلين هنا بعد.</td></tr>`;
-                return;
-            }
-
-            dataArray.forEach(st => {
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-800 hover:bg-slate-800/50">
-                        <td class="p-4 font-bold">${st.name}</td>
-                        <td class="p-4 text-slate-300"><a href="tel:${st.phone}" class="hover:underline text-blue-400">${st.phone}</a></td>
-                        <td class="p-4 text-amber-400 font-semibold">${st.grade}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteStudent(${st.id})" class="bg-red-600/20 text-red-400 border border-red-600/30 px-3 py-1 rounded-lg text-xs hover:bg-red-600 hover:text-white transition">حذف</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function filterTable(gradeVal) {
-            if (gradeVal === '') {
-                renderTable(allStudents);
+            grp.innerHTML = '<option value="">اختار الميعاد المناسب</option>';
+            
+            if(data && data.length > 0) {
+                data.forEach(g => {
+                    grp.innerHTML += `<option value="${g.group_name}">${g.group_name}</option>`;
+                });
             } else {
-                const filtered = allStudents.filter(st => st.grade === gradeVal);
-                renderTable(filtered);
+                grp.innerHTML = '<option value="">المس لسه مضفتش مواعيد للصف ده</option>';
             }
-        }
+        });
 
-        async function deleteStudent(id) {
-            if(confirm("هل أنتِ متأكدة من الحذف؟")) {
-                const { error } = await _supabase.from('students').delete().eq('id', id);
-                if(!error) {
-                    allStudents = allStudents.filter(st => st.id !== id);
-                    renderTable(allStudents);
-                }
+        // إرسال البيانات
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn');
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ يا عموري...";
+
+            const { error } = await sb.from('students').insert([{
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                grade: document.getElementById('grade').value + " - " + document.getElementById('group').value
+            }]);
+
+            if(error) {
+                alert("حصلت مشكلة في السيرفر، جرب تاني يا بطل!");
+                btn.disabled = false;
+                btn.innerText = "تأكيد التسجيل الآن";
+            } else {
+                alert("تم تسجيلك في المجموعات بنجاح يا بطل! 🎉");
+                location.reload();
             }
-        }
+        });
     </script>
 </body>
 </html>
