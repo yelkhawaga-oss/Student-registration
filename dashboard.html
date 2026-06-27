@@ -3,505 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Miss Dina Fatehy</title>
+    <title>Dina Fatehy - VIP System</title>
     
-    <!-- استدعاء المكتبات -->
+    <!-- ========================================== -->
+    <!-- ============== المكتبات ================== -->
+    <!-- ========================================== -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- ========================================== -->
+    <!-- ============== التنسيقات (CSS) ============= -->
+    <!-- ========================================== -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;500;700;900&display=swap');
         
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background-color: #0f172a; 
-            color: #f1f5f9; 
-            min-height: 100vh; 
-        }
-        
-        .en-font { 
-            font-family: 'Poppins', sans-serif; 
+        /* إعدادات عامة */
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        .admin-card {
-            background: #1e293b; 
-            border: 1px solid #334155; 
-            border-radius: 1rem; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .en-font { font-family: 'Poppins', sans-serif; }
+
+        /* تأثيرات التحميل والشاشة الافتتاحية */
+        #windows-splash {
+            position: fixed; inset: 0; z-index: 99999; background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1.5s ease-in-out;
         }
         
+        .loader-spinner {
+            width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%; border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite; margin-top: 20px; opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #splash-text {
+            font-size: 2.5rem; font-weight: 300; color: white; text-align: center;
+            opacity: 0; transition: opacity 1.5s ease-in-out; padding: 0 20px;
+        }
+
+        /* ستايل التسجيل (زجاجي فخم) */
+        #view-registration {
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+            min-height: 100vh; position: relative;
+        }
+
+        .glass-container {
+            background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            opacity: 0; transform: translateY(20px); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-container.show { opacity: 1; transform: translateY(0); }
+
+        .premium-input {
+            width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 1.2rem 1.2rem 1.2rem 3rem; border-radius: 1rem; color: white; outline: none;
+            transition: all 0.3s; font-size: 1rem;
+        }
+        .premium-input:focus {
+            border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px); background: rgba(15, 23, 42, 1);
+        }
+
+        /* فقاعات الخلفية */
+        .blob { position: absolute; filter: blur(90px); border-radius: 50%; animation: float 12s infinite ease-in-out alternate; z-index: 0; }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: rgba(99, 102, 241, 0.2); }
+        .blob-2 { bottom: -10%; right: -10%; width: 400px; height: 400px; background: rgba(236, 72, 153, 0.2); }
+        .blob-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: rgba(16, 185, 129, 0.1); animation-delay: -5s; }
+
+        @keyframes float { 
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
+            100% { transform: translate(40px, 60px) scale(1.2) rotate(10deg); } 
+        }
+
+        /* ستايل لوحة التحكم */
+        .admin-layout { display: flex; flex-direction: column; min-height: 100vh; }
+        
+        .admin-card { 
+            background: var(--card-bg); border: 1px solid #334155; 
+            border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); 
+            transition: transform 0.3s;
+        }
+        .admin-card:hover { transform: translateY(-2px); }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem; border-radius: 0.75rem;
+        }
+
         .input-admin {
-            width: 100%; 
-            padding: 0.75rem 1rem; 
-            background: #0f172a;
-            border: 1px solid #334155; 
-            border-radius: 0.5rem; 
-            color: white;
-            transition: border-color 0.2s; 
-            outline: none;
+            width: 100%; padding: 0.8rem 1.2rem; background: var(--dark-bg); 
+            border: 1px solid #334155; border-radius: 0.5rem; color: white; 
+            outline: none; transition: border-color 0.2s;
         }
-        
-        .input-admin:focus { 
-            border-color: #6366f1; 
-        }
+        .input-admin:focus { border-color: var(--primary); }
 
-        table { 
-            border-collapse: separate; 
-            border-spacing: 0; 
-            width: 100%; 
-        }
+        /* ستايل الجداول المتقدم */
+        .table-container { overflow-x: auto; border-radius: 0.5rem; }
+        table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: right; }
+        th { background-color: #0f172a; color: var(--text-muted); font-weight: 700; padding: 1.2rem 1rem; border-bottom: 2px solid #334155; }
+        td { padding: 1rem; border-bottom: 1px solid #334155; vertical-align: middle; transition: background 0.2s; }
+        tr:hover td { background-color: rgba(99, 102, 241, 0.05); }
+        .blocked-student td { opacity: 0.5; background-color: rgba(239, 68, 68, 0.05); }
         
-        th { 
-            background-color: #334155; 
-            color: #94a3b8; 
-            font-weight: 600; 
-            padding: 1rem; 
-            text-align: right; 
+        /* نظام الإشعارات */
+        #unified-toast {
+            position: fixed; top: 20px; right: 20px; z-index: 999999;
+            padding: 1.2rem 2rem; border-radius: 0.75rem; color: white; font-weight: bold;
+            transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            box-shadow: 0 15px 30px -5px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 12px;
         }
-        
-        td { 
-            padding: 1rem; 
-            border-bottom: 1px solid #334155; 
-            vertical-align: middle; 
-        }
-        
-        tr:hover td { 
-            background-color: rgba(99, 102, 241, 0.05); 
-        }
-        
-        th:first-child { 
-            border-top-right-radius: 0.5rem; 
-        }
-        
-        th:last-child { 
-            border-top-left-radius: 0.5rem; 
-        }
+        #unified-toast.show { transform: translateX(0); }
 
-        .blocked-student td { 
-            opacity: 0.5; 
-            background-color: rgba(239, 68, 68, 0.05); 
+        /* نافذة التأكيد المنبثقة (Modal) */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 100000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
         }
-        
-        #toast {
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            z-index: 9999;
-            padding: 1rem 1.5rem; 
-            border-radius: 0.5rem; 
-            color: white;
-            transform: translateX(150%); 
-            transition: transform 0.4s;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); 
-            font-weight: bold;
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--card-bg); border: 1px solid #334155; border-radius: 1rem;
+            padding: 2rem; width: 90%; max-width: 400px; transform: scale(0.9); transition: all 0.3s;
         }
-        
-        #toast.show { 
-            transform: translateX(0); 
-        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
 
-        /* ستايل شاشة الأنيميشن */
-        #introAnimation {
-            transition: opacity 0.8s ease-in-out;
-        }
-        
-        #introText {
-            transition: opacity 0.5s ease-in-out;
-        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center p-4">
+<body>
 
-    <!-- شاشة الأنيميشن الترحيبية -->
-    <div id="introAnimation" class="fixed inset-0 z-[10000] bg-[#0f172a] flex flex-col items-center justify-center">
-        <h2 id="introText" class="text-3xl md:text-5xl font-black text-indigo-400 text-center leading-relaxed px-4 opacity-0"></h2>
-    </div>
-
-    <!-- نظام الإشعارات -->
-    <div id="toast" class="bg-indigo-600 flex items-center gap-3">
-        <i class="fas fa-info-circle text-xl"></i>
-        <span id="toastMsg"></span>
-    </div>
-
-    <!-- شاشة تسجيل الدخول (مخفية في البداية لحد ما الأنيميشن يخلص) -->
-    <div id="loginSection" class="hidden w-full max-w-md admin-card p-8 mt-10">
-        <div class="text-center mb-8">
-            <i class="fas fa-user-shield text-5xl text-indigo-500 mb-4"></i>
-            <h2 class="en-font text-3xl font-bold">Admin Login</h2>
+    <!-- ========================================== -->
+    <!-- ============== المكونات المشتركة ============ -->
+    <!-- ========================================== -->
+    
+    <!-- إشعار النظام -->
+    <div id="unified-toast">
+        <i id="toastIcon" class="fas fa-info-circle text-2xl"></i>
+        <div class="flex flex-col">
+            <span id="toastTitle" class="text-sm opacity-80 en-font">Notification</span>
+            <span id="toastMsg" class="text-lg"></span>
         </div>
-        <form id="loginForm" class="space-y-5">
-            <input type="text" id="username" required class="input-admin" placeholder="اسم المستخدم (admin)">
-            <input type="password" id="password" required class="input-admin" placeholder="كلمة المرور (admin123)">
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg">
-                دخول <i class="fas fa-sign-in-alt ml-2"></i>
-            </button>
-        </form>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
-    <div id="dashboardSection" class="hidden w-full max-w-7xl flex flex-col gap-6 mt-4">
+    <!-- نافذة تأكيد الحذف (Modal) -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4 block"></i>
+            <h3 class="text-2xl font-bold mb-2">تأكيد الحذف</h3>
+            <p id="modalText" class="text-slate-400 mb-6">هل أنت متأكد من هذا الإجراء؟ لا يمكن التراجع عنه.</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="ModalSystem.close()" class="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
+                <button id="modalConfirmBtn" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-500 transition font-bold">نعم، احذف</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- ============== واجهة التسجيل (طالب) ======== -->
+    <!-- ========================================== -->
+    <div id="view-registration" class="flex flex-col items-center justify-center">
         
-        <div class="admin-card p-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-slate-800 to-slate-900">
-            <div>
-                <h1 class="en-font text-3xl font-black text-indigo-400">Miss Dina Fatehy</h1>
-                <p class="text-slate-400 text-sm">نظام الإدارة المنظم - على سنجة 10</p>
-            </div>
-            
-            <div class="w-full md:w-1/3">
-                <label class="block text-indigo-300 font-bold mb-2"><i class="fas fa-filter"></i> اختر الصف لعرض بياناته:</label>
-                <select id="mainGradeFilter" class="input-admin border-indigo-500 text-lg cursor-pointer">
-                    <option value="">-- يرجى اختيار الصف الدراسي --</option>
-                    <option value="الأول الابتدائي">الأول الابتدائي</option>
-                    <option value="الثاني الابتدائي">الثاني الابتدائي</option>
-                    <option value="الثالث الابتدائي">الثالث الابتدائي</option>
-                    <option value="الرابع الابتدائي">الرابع الابتدائي</option>
-                    <option value="الخامس الابتدائي">الخامس الابتدائي</option>
-                    <option value="السادس الابتدائي">السادس الابتدائي</option>
-                    <option value="الأول الإعدادي">الأول الإعدادي</option>
-                    <option value="الثاني الإعدادي">الثاني الإعدادي</option>
-                    <option value="الثالث الإعدادي">الثالث الإعدادي</option>
-                    <option value="الأول الثانوي">الأول الثانوي</option>
-                </select>
-            </div>
-            
-            <button onclick="logout()" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-bold transition">خروج</button>
+        <!-- شاشة التحميل الافتتاحية -->
+        <div id="windows-splash">
+            <h1 id="splash-text" class="en-font" dir="ltr"></h1>
+            <div class="loader-spinner" id="splash-loader"></div>
         </div>
 
-        <div id="welcomeMessage" class="text-center py-20 text-slate-500 text-xl">
-            <i class="fas fa-hand-pointer text-4xl mb-4 block"></i>
-            برجاء اختيار الصف الدراسي من القائمة بالأعلى لعرض الطلبة والمواعيد.
-        </div>
+        <!-- ديكور الخلفية -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
 
-        <div id="gradeContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- عمود المواعيد -->
-            <div class="lg:col-span-1 space-y-6">
+        <div class="w-full max-w-xl p-4 relative z-10 hidden" id="main-content">
+            <div class="glass-container p-8 lg:p-12" id="form-container">
                 
-                <div class="admin-card p-6 border-2 border-indigo-500/30">
-                    <h3 class="text-lg font-bold mb-4 text-emerald-400 border-b border-slate-700 pb-2">
-                        <i class="fas fa-magic"></i> بناء ميعاد سريع لـ <span id="lblAddGrade" class="text-white"></span>
-                    </h3>
-                    <div class="space-y-4">
-                        <div class="flex gap-2">
-                            <select id="day1" class="input-admin cursor-pointer p-2 w-1/2 text-sm">
-                                <option value="السبت">السبت</option>
-                                <option value="الأحد">الأحد</option>
-                                <option value="الإثنين">الإثنين</option>
-                                <option value="الثلاثاء">الثلاثاء</option>
-                                <option value="الأربعاء">الأربعاء</option>
-                                <option value="الخميس">الخميس</option>
-                                <option value="الجمعة">الجمعة</option>
-                            </select>
-                            
-                            <select id="day2" class="input-admin cursor-pointer p-2 w-1/2 text-sm">
-                                <option value="والأربعاء">والأربعاء</option>
-                                <option value="والخميس">والخميس</option>
-                                <option value="والجمعة">والجمعة</option>
-                                <option value="والسبت">والسبت</option>
-                                <option value="والأحد">والأحد</option>
-                                <option value="والإثنين">والإثنين</option>
-                                <option value="والثلاثاء">والثلاثاء</option>
-                                <option value="فقط">فقط (يوم واحد)</option>
-                            </select>
-                        </div>
+                <!-- هيدر الفورمة -->
+                <div class="text-center mb-10">
+                    <div class="inline-block p-4 rounded-full bg-indigo-500/10 mb-4 border border-indigo-500/20">
+                        <i class="fas fa-user-graduate text-4xl text-indigo-400"></i>
+                    </div>
+                    <h1 class="en-font text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-2">
+                        Miss Dina Fatehy
+                    </h1>
+                    <p class="text-indigo-200 text-sm font-medium tracking-wide">STUDENT REGISTRATION PORTAL V2.0</p>
+                </div>
 
-                        <select id="groupTime" class="input-admin cursor-pointer">
-                            <option value="الساعة 9:00 صباحاً">الساعة 9:00 صباحاً</option>
-                            <option value="الساعة 10:00 صباحاً">الساعة 10:00 صباحاً</option>
-                            <option value="الساعة 11:00 صباحاً">الساعة 11:00 صباحاً</option>
-                            <option value="الساعة 12:00 ظهراً">الساعة 12:00 ظهراً</option>
-                            <option value="الساعة 1:00 ظهراً">الساعة 1:00 ظهراً</option>
-                            <option value="الساعة 2:00 ظهراً">الساعة 2:00 ظهراً</option>
-                            <option value="الساعة 3:00 عصراً">الساعة 3:00 عصراً</option>
-                            <option value="الساعة 4:00 عصراً">الساعة 4:00 عصراً</option>
-                            <option value="الساعة 5:00 عصراً">الساعة 5:00 عصراً</option>
-                            <option value="الساعة 6:00 مساءً">الساعة 6:00 مساءً</option>
-                            <option value="الساعة 7:00 مساءً">الساعة 7:00 مساءً</option>
-                            <option value="الساعة 8:00 مساءً">الساعة 8:00 مساءً</option>
-                            <option value="الساعة 9:00 مساءً">الساعة 9:00 مساءً</option>
+                <!-- نموذج التسجيل -->
+                <form id="registrationForm" class="space-y-6">
+                    <div class="relative group">
+                        <i class="fas fa-user absolute right-5 top-1/2 transform -translate-y-1/2 text-indigo-400 transition group-focus-within:text-indigo-300"></i>
+                        <input type="text" id="studentName" required placeholder="اسم الطالب الرباعي (مطلوب)" class="premium-input pr-14">
+                    </div>
+                    
+                    <div class="relative group">
+                        <i class="fas fa-id-badge absolute right-5 top-1/2 transform -translate-y-1/2 text-indigo-400 transition group-focus-within:text-indigo-300"></i>
+                        <input type="text" id="studentCode" placeholder="رقم الطالب التعريفي (إن وجد)" class="premium-input pr-14">
+                    </div>
+                    
+                    <div class="relative group">
+                        <i class="fas fa-phone-alt absolute right-5 top-1/2 transform -translate-y-1/2 text-indigo-400 transition group-focus-within:text-indigo-300"></i>
+                        <input type="tel" id="parentPhone" required pattern="^01[0125][0-9]{8}$" title="يرجى إدخال رقم هاتف مصري صحيح (11 رقم)" placeholder="رقم هاتف ولي الأمر (01...)" class="premium-input pr-14 text-left font-mono" dir="ltr">
+                    </div>
+                    
+                    <div class="relative group">
+                        <i class="fas fa-layer-group absolute right-5 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10 transition group-focus-within:text-indigo-300"></i>
+                        <select id="gradeSelect" required class="premium-input pr-14 cursor-pointer appearance-none">
+                            <option value="" disabled selected>اختر المرحلة والصف الدراسي...</option>
+                            <optgroup label="المرحلة الابتدائية">
+                                <option value="الأول الابتدائي">الأول الابتدائي</option>
+                                <option value="الثاني الابتدائي">الثاني الابتدائي</option>
+                                <option value="الثالث الابتدائي">الثالث الابتدائي</option>
+                                <option value="الرابع الابتدائي">الرابع الابتدائي</option>
+                                <option value="الخامس الابتدائي">الخامس الابتدائي</option>
+                                <option value="السادس الابتدائي">السادس الابتدائي</option>
+                            </optgroup>
+                            <optgroup label="المرحلة الإعدادية">
+                                <option value="الأول الإعدادي">الأول الإعدادي</option>
+                                <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+                                <option value="الثالث الإعدادي">الثالث الإعدادي</option>
+                            </optgroup>
+                            <optgroup label="المرحلة الثانوية">
+                                <option value="الأول الثانوي">الأول الثانوي</option>
+                            </optgroup>
                         </select>
+                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    </div>
+                    
+                    <div class="relative group">
+                        <i class="fas fa-clock absolute right-5 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10"></i>
+                        <select id="groupSelect" required disabled class="premium-input pr-14 cursor-pointer appearance-none opacity-50 bg-slate-800">
+                            <option value="" disabled selected>برجاء تحديد الصف أولاً لعرض المواعيد...</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    </div>
 
-                        <button onclick="addNewGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold shadow-lg transition">
-                            <i class="fas fa-plus-circle"></i> إضافة الميعاد فوراً
-                        </button>
+                    <!-- رسالة شروط -->
+                    <div class="flex items-start gap-3 mt-4 text-sm text-slate-400">
+                        <input type="checkbox" required id="terms" class="mt-1 accent-indigo-500 w-4 h-4 cursor-pointer">
+                        <label for="terms" class="cursor-pointer">أقر بأن جميع البيانات المدخلة صحيحة، وأوافق على الالتزام بمواعيد الحضور والانصراف.</label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden bg-indigo-600 text-white font-bold text-xl py-4 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] mt-4">
+                        <span class="relative z-10 flex items-center justify-center gap-3">
+                            <i class="fas fa-check-circle"></i> تسجيل البيانات الآن
+                        </span>
+                        <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="text-center mt-8 flex flex-col items-center gap-3">
+                <p class="text-slate-500 text-sm en-font">Powered by System Architect &copy; 2026</p>
+                <button type="button" onclick="AppNavigation.switchToAdmin()" class="text-slate-600 hover:text-indigo-400 text-sm transition-colors flex items-center gap-2">
+                    <i class="fas fa-shield-alt"></i> الدخول للإدارة
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- ============== واجهة الأدمن (الإدارة) ====== -->
+    <!-- ========================================== -->
+    <div id="view-admin" class="hidden admin-layout bg-[#0f172a]">
+        
+        <!-- شاشة التحميل للإدارة -->
+        <div id="introAnimation" class="fixed inset-0 z-[10000] bg-[#0f172a] hidden flex-col items-center justify-center">
+            <i class="fas fa-cog fa-spin text-6xl text-indigo-500 mb-6 opacity-80"></i>
+            <h2 id="introText" class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-center leading-relaxed px-4 opacity-0"></h2>
+        </div>
+
+        <!-- البار العلوي للإدارة -->
+        <nav class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xl font-bold">D</div>
+                    <div>
+                        <h1 class="en-font text-xl font-bold text-white leading-tight">Admin Portal</h1>
+                        <span class="text-xs text-emerald-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> النظام متصل</span>
                     </div>
                 </div>
-
-                <div class="admin-card p-6">
-                    <h3 class="text-lg font-bold mb-4 text-indigo-400 border-b border-slate-700 pb-2">
-                        <i class="fas fa-list"></i> المواعيد المسجلة
-                    </h3>
-                    <ul id="groupsList" class="space-y-2"></ul>
-                </div>
+                <button onclick="AppNavigation.switchToRegistration()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm">
+                    <i class="fas fa-sign-out-alt rotate-180"></i> خروج للصفحة الرئيسية
+                </button>
             </div>
+        </nav>
 
-            <!-- عمود الطلبة -->
-            <div class="lg:col-span-2 admin-card p-0 overflow-hidden">
-                <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-pink-400">
-                        <i class="fas fa-users"></i> طلبة <span id="lblStudentsGrade" class="text-white"></span>
-                    </h3>
-                    <span id="studentsCount" class="bg-indigo-600 px-3 py-1 rounded-full text-sm font-bold">0 طالب</span>
+        <!-- قسم تسجيل الدخول للأدمن -->
+        <div id="loginSection" class="hidden flex-1 flex items-center justify-center p-4">
+            <div class="w-full max-w-md admin-card p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700 shadow-inner">
+                        <i class="fas fa-lock text-3xl text-indigo-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">تسجيل الدخول للإدارة</h2>
+                    <p class="text-sm text-slate-400 mt-2">يرجى إدخال بيانات الاعتماد الخاصة بك</p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>الاسم / الكود</th>
-                                <th>الميعاد</th>
-                                <th>ولي الأمر</th>
-                                <th class="text-center">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentsTable"></tbody>
-                    </table>
-                </div>
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">اسم المستخدم</label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" id="username" required class="input-admin pr-10" placeholder="admin">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">كلمة المرور</label>
+                        <div class="relative">
+                            <i class="fas fa-key absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+                            <input type="password" id="password" required class="input-admin pr-10" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg py-3 rounded-lg mt-6 shadow-lg transition-colors flex justify-center items-center gap-2">
+                        دخول <i class="fas fa-arrow-left"></i>
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- برمجة النظام -->
-    <script>
-        const _supabase = supabase.createClient('https://gxmadpzxcrfjuciclqhi.supabase.co', 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ');
-        let currentSelectedGrade = '';
-
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            t.className = isError ? 'bg-red-500 flex items-center gap-3 show' : 'bg-emerald-500 flex items-center gap-3 show';
-            setTimeout(() => {
-                t.classList.remove('show');
-            }, 3000);
-        }
-
-        // تشغيل الأنيميشن أول ما الموقع يفتح
-        window.onload = () => {
-            const introSection = document.getElementById('introAnimation');
-            const introText = document.getElementById('introText');
+        <!-- لوحة التحكم الفعلية (Dashboard) -->
+        <div id="dashboardSection" class="hidden flex-1 p-4 md:p-8 max-w-screen-2xl mx-auto w-full flex-col gap-6">
             
-            const messages = [
-                "مرحبا بك يا مس دينا فتحي في لوحه التحكم",
-                "نتمنى ان يعجبك هذا الموقع",
-                "واحنا بنجهز كل حاجه عشان تكون جاهزه ليكي"
-            ];
-            
-            let msgIndex = 0;
-
-            function playAnimation() {
-                if (msgIndex < messages.length) {
-                    introText.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        introText.innerText = messages[msgIndex];
-                        introText.style.opacity = '1';
-                        msgIndex++;
-                        
-                        setTimeout(playAnimation, 2500); // الوقت اللي الجملة بتفضل ظاهرة فيه
-                    }, 500);
-                } else {
-                    introSection.style.opacity = '0';
-                    
-                    setTimeout(() => {
-                        introSection.classList.add('hidden');
-                        
-                        // بعد ما الأنيميشن يخلص، نشوف هيدخل على اللوحة ولا يسجل دخول
-                        if(localStorage.getItem('DinaAdmin') === 'true') {
-                            showDashboard(); 
-                        } else {
-                            document.getElementById('loginSection').classList.remove('hidden');
-                        }
-                    }, 800);
-                }
-            }
-            
-            playAnimation();
-        };
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            
-            try {
-                const { data } = await _supabase.from('admin_users').select('*').eq('username', u).eq('password', p);
-                if ((data && data.length > 0) || (u === 'admin' && p === 'admin123')) {
-                    localStorage.setItem('DinaAdmin', 'true');
-                    showDashboard();
-                    showToast('تم تسجيل الدخول بنجاح');
-                } else {
-                    showToast('بيانات غير صحيحة', true);
-                }
-            } catch (err) {
-                if(u === 'admin' && p === 'admin123') {
-                    localStorage.setItem('DinaAdmin', 'true');
-                    showDashboard();
-                    showToast('تم الدخول بنجاح');
-                } else {
-                    showToast('خطأ في الاتصال بقاعدة البيانات', true);
-                }
-            }
-        });
-
-        function showDashboard() {
-            document.body.classList.replace('justify-center', 'justify-start');
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
-        }
-
-        function logout() { 
-            localStorage.removeItem('DinaAdmin'); 
-            location.reload(); 
-        }
-
-        document.getElementById('mainGradeFilter').addEventListener('change', (e) => {
-            currentSelectedGrade = e.target.value;
-            if(!currentSelectedGrade) {
-                document.getElementById('welcomeMessage').classList.remove('hidden');
-                document.getElementById('gradeContent').classList.add('hidden');
-                return;
-            }
-            document.getElementById('welcomeMessage').classList.add('hidden');
-            document.getElementById('gradeContent').classList.remove('hidden');
-            document.getElementById('lblAddGrade').innerText = currentSelectedGrade;
-            document.getElementById('lblStudentsGrade').innerText = currentSelectedGrade;
-            loadDataForGrade();
-        });
-
-        async function loadDataForGrade() {
-            document.getElementById('studentsTable').innerHTML = '<tr><td colspan="4" class="text-center py-8">جاري التحميل...</td></tr>';
-            
-            const { data: groups } = await _supabase.from('groups').select('*').eq('grade', currentSelectedGrade);
-            const groupsList = document.getElementById('groupsList');
-            groupsList.innerHTML = '';
-            
-            if(groups && groups.length > 0) {
-                groups.forEach(g => {
-                    groupsList.innerHTML += `<li class="bg-slate-700 p-3 rounded flex justify-between items-center text-sm border border-slate-600">
-                        <span class="font-bold text-emerald-300">${g.group_name}</span>
-                        <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300 bg-red-400/10 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
-                    </li>`;
-                });
-            } else {
-                groupsList.innerHTML = '<li class="text-slate-500 text-sm">لا يوجد مواعيد مسجلة</li>';
-            }
-
-            const { data: students } = await _supabase.from('students_registration').select('*').like('grade', `${currentSelectedGrade}%`).order('created_at', { ascending: false });
-            renderStudents(students || []);
-        }
-
-        function renderStudents(students) {
-            const tbody = document.getElementById('studentsTable');
-            document.getElementById('studentsCount').innerText = `${students.length} طالب`;
-            tbody.innerHTML = '';
-            
-            if(students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">لا يوجد طلاب</td></tr>';
-                return;
-            }
-
-            students.forEach(s => {
-                const isBlocked = s.status === 'blocked';
-                const trClass = isBlocked ? 'blocked-student' : '';
-                const blockIcon = isBlocked ? 'fa-unlock' : 'fa-ban';
-                const blockAction = isBlocked ? 'active' : 'blocked';
-                const waMsg = `نعتذر لحضرتك، تم اكتمال العدد في مجموعة (${s.grade}) للطالب ${s.name}.`;
-                
-                tbody.innerHTML += `
-                    <tr class="${trClass}">
-                        <td><div class="font-bold text-white">${s.name}</div><div class="text-xs text-indigo-300 mt-1">Code: ${s.student_code || 'بدون'}</div></td>
-                        <td class="text-sm font-bold text-emerald-300">${s.grade.split(' - ')[1] || s.grade}</td>
-                        <td dir="ltr" class="text-right font-mono">${s.parent_phone}</td>
-                        <td class="text-center space-x-1 space-x-reverse min-w-[120px]">
-                            <a href="https://wa.me/2${s.parent_phone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="inline-block bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded text-xs"><i class="fab fa-whatsapp"></i></a>
-                            <button onclick="removeStudent(${s.id}, '${s.name}')" class="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i></button>
-                            <button onclick="updateStudentStatus(${s.id}, '${blockAction}')" class="bg-orange-600 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs"><i class="fas ${blockIcon}"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function addNewGroup() {
-            const d1 = document.ge
-async function addNewGroup() {
-    if (!currentSelectedGrade) {
-        showToast('اختاري الصف الأول', true);
-        return;
-    }
-
-    const d1 = document.getElementById('day1').value;
-    const d2 = document.getElementById('day2').value;
-    const time = document.getElementById('groupTime').value;
-
-    const groupName =
-        d2 === 'فقط'
-            ? `${d1} - ${time}`
-            : `${d1} ${d2} - ${time}`;
-
-    const { error } = await _supabase
-        .from('groups')
-        .insert([{
-            grade: currentSelectedGrade,
-            group_name: groupName
-        }]);
-
-    if (error) {
-        showToast('فشل إضافة الميعاد', true);
-        return;
-    }
-
-    showToast('تم إضافة الميعاد بنجاح');
-    loadDataForGrade();
-}
-
-async function deleteGroup(id) {
-    if (!confirm('هل تريد حذف الميعاد؟')) return;
-
-    const { error } = await _supabase
-        .from('groups')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        showToast('فشل الحذف', true);
-        return;
-    }
-
-    showToast('تم حذف الميعاد');
-    loadDataForGrade();
-}
-
-async function removeStudent(id, name) {
-    if (!confirm(`حذف الطالب ${name} ؟`)) return;
-
-    const { error } = await _supabase
-        .from('students_registration')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        showToast('فشل حذف الطالب', true);
-        return;
-    }
-
-    showToast('تم حذف الطالب');
-    loadDataForGrade();
-}
-
-async function updateStudentStatus(id, status) {
-    const { error } = await _supabase
-        .from('students_registration')
-        .update({ status })
-        .eq('id', id);
-
-    if (error) {
-        showToast('فشل تحديث الحالة', true);
-        return;
-    }
-
-    showToast('تم تحديث الحالة');
-    loadDataForGrade();
-}    </script>
-</body>
-</html>
+            <!-- فلتر واحصائيات سريعة -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
+                <div class="admin-card p-6 md:col-span-2 flex flex-col justify-center">
+                    <label class="block text-indigo-300 font-bold mb-3 text-lg"><i clas
