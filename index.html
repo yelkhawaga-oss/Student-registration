@@ -3,151 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة التسجيل | مس إنجليش</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Registration | Miss Dina Fathi</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background: #0f172a; color: #f8fafc; min-height: 100vh; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .input-field { width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; padding: 0.75rem; border-radius: 0.5rem; color: white; outline: none; transition: 0.3s; }
-        .input-field:focus { border-color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .en-font { font-family: 'Poppins', sans-serif; }
+
+        /* ستايل شاشة الترحيب زي ويندوز 11 */
+        #windows-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background-color: #000000;
+            display: flex;
+            align-items: center;
+            justify-center;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #splash-text {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: white;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        @media (min-width: 768px) {
+            #splash-text { font-size: 3.5rem; }
+        }
+
+        /* تأثيرات الزجاج الفخمة لفورمة التسجيل */
+        .glass-container {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-container.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* حقول الإدخال */
+        .premium-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 0.75rem;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-input:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* الإشعارات */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #10b981;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transition: visibility 0.5s, bottom 0.5s, opacity 0.5s;
+            opacity: 0;
+        }
+        #toast.show {
+            visibility: visible;
+            bottom: 50px;
+            opacity: 1;
+        }
+
+        /* دوائر الخلفية المضيئة */
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.3); }
+        .blob-2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: rgba(236, 72, 153, 0.3); }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
     </style>
 </head>
-<body class="p-4 py-10 flex flex-col items-center justify-center space-y-8">
+<body class="relative flex flex-col items-center justify-center min-h-screen">
 
-    <!-- قسم التسجيل الأساسي -->
-    <div class="glass w-full max-w-xl rounded-2xl p-8 shadow-2xl relative">
-        <h1 class="text-3xl font-black text-center text-amber-500 mb-6">حجز المواعيد والكشوفات</h1>
-        
-        <form id="regForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-bold text-slate-300 mb-1">اسم الطالب رباعي</label>
-                <input type="text" id="studentName" required placeholder="اكتب الاسم هنا" class="input-field">
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-300 mb-1">رقم الطالب (الكود)</label>
-                <input type="text" id="studentCode" required placeholder="أدخل كود الطالب" class="input-field">
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-300 mb-1">رقم هاتف ولي الأمر</label>
-                <input type="tel" id="parentPhone" required placeholder="01xxxxxxxxx" class="input-field text-left" dir="ltr">
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-300 mb-1">الصف الدراسي</label>
-                <select id="gradeSelect" required class="input-field">
-                    <option value="">-- اختر الصف --</option>
-                    <option value="1 إبتدائي">1 إبتدائي</option>
-                    <option value="2 إبتدائي">2 إبتدائي</option>
-                    <option value="3 إبتدائي">3 إبتدائي</option>
-                    <option value="4 إبتدائي">4 إبتدائي</option>
-                    <option value="5 إبتدائي">5 إبتدائي</option>
-                    <option value="6 إبتدائي">6 إبتدائي</option>
-                    <option value="1 إعدادي">1 إعدادي</option>
-                    <option value="2 إعدادي">2 إعدادي</option>
-                    <option value="3 إعدادي">3 إعدادي</option>
-                    <option value="1 ثانوي">1 ثانوي</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-bold text-slate-300 mb-1">الميعاد المناسب</label>
-                <select id="groupSelect" required class="input-field">
-                    <option value="">اختر الصف أولاً...</option>
-                </select>
-            </div>
-            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-lg transition mt-4">
-                تأكيد الحجز والتسجيل
-            </button>
-        </form>
+    <!-- شاشة الترحيب الافتتاحية (ستايل ويندوز) -->
+    <div id="windows-splash">
+        <h1 id="splash-text" class="en-font" dir="ltr"></h1>
     </div>
 
-    <!-- قسم إلغاء التسجيل -->
-    <div class="glass w-full max-w-xl rounded-2xl p-6 border-t-4 border-red-500">
-        <h2 class="text-xl font-bold text-red-400 mb-4">هل ترغب في إلغاء حجزك؟</h2>
-        <div class="flex flex-col md:flex-row gap-3">
-            <input type="text" id="cancelCode" placeholder="كود الطالب" class="input-field">
-            <input type="tel" id="cancelPhone" placeholder="رقم ولي الأمر" class="input-field text-left" dir="ltr">
-            <button onclick="cancelRegistration()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg whitespace-nowrap">
-                إلغاء الحجز
-            </button>
+    <!-- دوائر الديكور -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- فورمة التسجيل (مخفية في البداية) -->
+    <div class="w-full max-w-lg p-4 relative z-10 hidden" id="main-content">
+        <div class="glass-container rounded-3xl p-8 lg:p-10" id="form-container">
+            
+            <!-- الهيدر الانجليزي -->
+            <div class="text-center mb-10">
+                <h1 class="en-font text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-2">
+                    Miss Dina Fathi
+                </h1>
+                <p class="text-indigo-200 text-sm font-medium tracking-wide">STUDENT REGISTRATION PORTAL</p>
+            </div>
+
+            <form id="registrationForm" class="space-y-6">
+                <div class="relative">
+                    <i class="fas fa-user absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
+                    <input type="text" id="studentName" required placeholder="اسم الطالب الرباعي" class="premium-input pr-12">
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-id-card absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
+                    <input type="text" id="studentCode" placeholder="رقم الطالب (اختياري)" class="premium-input pr-12">
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-phone absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
+                    <input type="tel" id="parentPhone" required placeholder="رقم هاتف ولي الأمر (01...)" class="premium-input pr-12 text-left" dir="ltr">
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-graduation-cap absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10"></i>
+                    <select id="gradeSelect" required class="premium-input pr-12 cursor-pointer appearance-none">
+                        <option value="" disabled selected>اختر الصف الدراسي...</option>
+                        <option value="الأول الابتدائي">الأول الابتدائي</option>
+                        <option value="الثاني الابتدائي">الثاني الابتدائي</option>
+                        <option value="الثالث الابتدائي">الثالث الابتدائي</option>
+                        <option value="الرابع الابتدائي">الرابع الابتدائي</option>
+                        <option value="الخامس الابتدائي">الخامس الابتدائي</option>
+                        <option value="السادس الابتدائي">السادس الابتدائي</option>
+                        <option value="الأول الإعدادي">الأول الإعدادي</option>
+                        <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+                        <option value="الثالث الإعدادي">الثالث الإعدادي</option>
+                        <option value="الأول الثانوي">الأول الثانوي</option>
+                    </select>
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-clock absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10"></i>
+                    <select id="groupSelect" required disabled class="premium-input pr-12 cursor-pointer appearance-none opacity-50 transition-opacity duration-300">
+                        <option value="" disabled selected>اختر الصف أولاً لتظهر المواعيد...</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]">
+                    <span class="relative z-10 flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        تأكيد تسجيل البيانات
+                    </span>
+                    <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </button>
+            </form>
         </div>
+        
+        <p class="text-center text-slate-500 text-sm mt-6 en-font">Powered by Advanced Supabase System &copy; 2026</p>
     </div>
 
-    <!-- بيانات المس -->
-    <div class="w-full max-w-xl text-center bg-slate-900 p-6 rounded-2xl border border-slate-700">
-        <h3 class="text-lg font-bold text-white mb-2">للتواصل والاستفسارات</h3>
-        <p class="text-amber-400 font-medium text-lg">📍 العنوان: القليوبية، بنها، الفلل</p>
-        <p class="text-slate-400 mt-2">📞 للتواصل عبر الواتساب: <span class="text-white font-bold" dir="ltr">+20 10 14445464</span></p>
-    </div>
+    <!-- رسالة الإشعار -->
+    <div id="toast">✅ تمت عملية التسجيل بنجاح!</div>
 
     <script>
-        const _supabase = supabase.createClient(
-            "https://lhshvscofrestjvlespa.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
-        );
-
-        // جلب المواعيد
-        document.getElementById('gradeSelect').addEventListener('change', async (e) => {
-            const grade = e.target.value;
-            const groupSelect = document.getElementById('groupSelect');
-            if (!grade) return groupSelect.innerHTML = '<option value="">اختر الصف أولاً...</option>';
-            groupSelect.innerHTML = '<option value="">⏳ جاري التحميل...</option>';
-            
-            const { data, error } = await _supabase.from('groups').select('group_name').eq('grade_level', grade);
-            
-            if (error) {
-                console.error("Error fetching groups:", error);
-                groupSelect.innerHTML = '<option value="">حدث خطأ في تحميل المواعيد</option>';
-                return;
-            }
-
-            groupSelect.innerHTML = '<option value="">-- اختر الميعاد --</option>';
-            if (data && data.length > 0) {
-                data.forEach(item => groupSelect.innerHTML += `<option value="${item.group_name}">${item.group_name}</option>`);
+        // === برمجة الشاشة الافتتاحية (Windows 11 Style) ===
+        const splashScreen = document.getElementById('windows-splash');
+        const splashText = document.getElementById('splash-text');
+        const mainContent = document.getElementById('main-content');
+        const formContainer = document.getElementById('form-container');
+        
+        const welcomeMessages = [
+            "Hi.",
+            "We welcome our new students.",
+            "We wish you a year full of excellence.",
+            "Getting everything ready for you..."
+        ];
+        
+        let msgIndex = 0;
+        
+        function showNextMessage() {
+            if (msgIndex < welcomeMessages.length) {
+                // إخفاء النص الحالي
+                splashText.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // تغيير النص وإظهاره
+                    splashText.textContent = welcomeMessages[msgIndex];
+                    splashText.style.opacity = 1;
+                    msgIndex++;
+                    
+                    // الانتظار قبل عرض الرسالة اللي بعدها
+                    setTimeout(showNextMessage, 3000); // كل رسالة هتاخد 3 ثواني
+                }, 1500); // وقت الـ fade-out
             } else {
-                groupSelect.innerHTML = '<option value="">لا توجد مواعيد حالياً لهذا الصف</option>';
-            }
-        });
-
-        // التسجيل
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { error } = await _supabase.from('students_registration').insert([{
-                name: document.getElementById('studentName').value,
-                student_code: document.getElementById('studentCode').value,
-                parent_phone: document.getElementById('parentPhone').value,
-                grade: document.getElementById('gradeSelect').value + " - " + document.getElementById('groupSelect').value
-            }]);
-            
-            if (error) {
-                console.error("Error inserting:", error);
-                alert("❌ خطأ في التسجيل!");
-            } else { 
-                alert("✅ تم تسجيلك بنجاح!"); 
-                document.getElementById('regForm').reset(); 
-                document.getElementById('groupSelect').innerHTML = '<option value="">اختر الصف أولاً...</option>';
-            }
-        });
-
-        // إلغاء التسجيل
-        async function cancelRegistration() {
-            const code = document.getElementById('cancelCode').value;
-            const phone = document.getElementById('cancelPhone').value;
-            if (!code || !phone) return alert("الرجاء إدخال الكود ورقم الهاتف!");
-
-            const { data } = await _supabase.from('students_registration').select('id').eq('student_code', code).eq('parent_phone', phone);
-            
-            if (data && data.length > 0) {
-                if (confirm("هل أنت متأكد من إلغاء التسجيل؟")) {
-                    await _supabase.from('students_registration').delete().eq('id', data[0].id);
-                    alert("🗑️ تم إلغاء الحجز بنجاح.");
-                    document.getElementById('cancelCode').value = '';
-                    document.getElementById('cancelPhone').value = '';
-                }
-            } else {
-                alert("❌ لم يتم العثور على حجز بهذه البيانات.");
+                // إنهاء الشاشة الافتتاحية
+                splashText.style.opacity = 0;
+                setTimeout(() => {
+                    splashScreen.style.opacity = 0;
+                    setTimeout(() => {
+                        splashScreen.style.display = 'none';
+                        mainContent.classList.remove('hidden');
+                        // تأثير دخول الفورمة ببطء وشياكة
+                        setTimeout(() => {
+                            formContainer.classList.add('show');
+                        }, 100);
+                    }, 1500);
+                }, 1500);
             }
         }
+        
+        // تشغيل الأنيميشن أول ما الصفحة تفتح
+        window.addEventListener('load', () => {
+            setTimeout(showNextMessage, 500);
+        });
+
+
+        // === برمجة التسجيل وقاعدة البيانات ===
+        const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const gradeSelect = document.getElementById('gradeSelect');
+        const groupSelect = document.getElementById('groupSelect');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
+        }
+
+        gradeSelect.addEventListener('change', async () => {
+            const grade = gradeSelect.value;
+            groupSelect.disabled = true;
+            groupSelect.classList.add('opacity-50');
+            groupSelect.innerHTML = '<option value="" disabled selected>⏳ جاري البحث عن المواعيد...</option>';
+
+            try {
+                const { data, error } = await _supabase.from('groups').select('*').eq('grade', grade);
+                if (error) throw error;
+
+                if (data.length === 0) {
+                    groupSelect.innerHTML = '<option value="" disabled selected>⚠️ لا توجد مواعيد متاحة حالياً لهذا الصف</option>';
+                } else {
+                    groupSelect.innerHTML = '<option value="" disabled selected>✨ اختر الميعاد المناسب لك...</option>';
+                    data.forEach(group => {
+                        const option = document.createElement('option');
+                        option.value = group.group_name;
+                        option.textContent = group.group_name;
+                        groupSelect.appendChild(option);
+                    });
+                    groupSelect.disabled = false;
+                    groupSelect.classList.remove('opacity-50');
+                }
+            } catch (err) {
+                console.error(err);
+                groupSelect.innerHTML = '<option value="" disabled selected>❌ حدث خطأ في النظام</option>';
+            }
+        });
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
+            submitBtn.disabled = true;
+
+            const studentCodeVal = document.getElementById('studentCode').value.trim();
+
+            try {
+                const { error } = await _supabase.from('students_registration').insert([{
+                    name: document.getElementById('studentName').value,
+                    student_code: studentCodeVal === "" ? null : studentCodeVal,
+                    parent_phone: document.getElementById('parentPhone').value,
+                    grade: gradeSelect.value + " - " + groupSelect.value
+                }]);
+
+                if (error) throw error;
+
+                showToast("🎉 مرحباً بك! تم تسجيل بياناتك بنجاح.");
+                document.getElementById('registrationForm').reset();
+                groupSelect.innerHTML = '<option value="" disabled selected>اختر الصف أولاً لتظهر المواعيد...</option>';
+                groupSelect.disabled = true;
+                groupSelect.classList.add('opacity-50');
+
+            } catch (err) {
+                console.error(err);
+                showToast("❌ عذراً، حدث خطأ أثناء التسجيل.", true);
+            } finally {
+                submitBtn.innerHTML = originalBtnHtml;
+                submitBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
