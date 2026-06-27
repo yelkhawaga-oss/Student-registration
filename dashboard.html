@@ -3,153 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم | مس إنجليش</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Admin Dashboard | Miss Dina Fathi</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: system-ui, sans-serif; background-color: #020617; color: white; min-height: 100vh; }
-        .hidden { display: none !important; }
-        .panel { background: #0f172a; border: 1px solid #1e293b; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@500;700;900&display=swap');
+        
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .en-font { font-family: 'Poppins', sans-serif; }
+
+        /* ستايل الكروت والجداول */
+        .admin-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-admin {
+            width: 100%; padding: 0.75rem 1rem; background: #0f172a;
+            border: 1px solid #334155; border-radius: 0.5rem; color: white;
+            transition: border-color 0.2s;
+        }
+        .input-admin:focus { outline: none; border-color: #6366f1; }
+
+        /* الجدول */
+        table { border-collapse: separate; border-spacing: 0; width: 100%; }
+        th { background-color: #334155; color: #94a3b8; font-weight: 600; padding: 1rem; text-align: right; }
+        td { padding: 1rem; border-bottom: 1px solid #334155; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(99, 102, 241, 0.05); }
+        
+        th:first-child { border-top-right-radius: 0.5rem; }
+        th:last-child { border-top-left-radius: 0.5rem; }
+
+        /* توست الإشعارات */
+        #adminToast {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            padding: 1rem 1.5rem; border-radius: 0.5rem; color: white;
+            transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); font-weight: bold;
+        }
+        #adminToast.show { transform: translateX(0); }
     </style>
 </head>
-<body class="p-6">
+<body class="min-h-screen flex items-center justify-center">
 
-    <div id="loginScreen" class="flex flex-col items-center justify-center mt-20">
-        <div class="panel p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
-            <h2 class="text-2xl font-bold text-amber-500 mb-6">تسجيل دخول للإدارة</h2>
-            <input type="password" id="adminPassword" placeholder="كلمة المرور" class="w-full p-3 rounded bg-slate-800 border border-slate-700 text-center mb-4 outline-none focus:border-amber-500">
-            <button onclick="login()" class="w-full bg-amber-600 hover:bg-amber-700 py-3 rounded font-bold transition">دخول</button>
+    <!-- توست الإشعارات للأدمن -->
+    <div id="adminToast" class="bg-indigo-600 flex items-center gap-3">
+        <i class="fas fa-info-circle text-xl"></i>
+        <span id="toastMsg">رسالة هنا</span>
+    </div>
+
+    <!-- قسم تسجيل الدخول -->
+    <div id="loginSection" class="w-full max-w-md p-4">
+        <div class="admin-card p-8">
+            <div class="text-center mb-8">
+                <i class="fas fa-lock text-5xl text-indigo-500 mb-4"></i>
+                <h2 class="en-font text-3xl font-bold text-white">Admin Login</h2>
+                <p class="text-slate-400 mt-1 en-font">Miss Dina Fathi Portal</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-slate-300 text-sm mb-2">اسم المستخدم</label>
+                    <input type="text" id="username" required class="input-admin" placeholder="Admin Username">
+                </div>
+                <div>
+                    <label class="block text-slate-300 text-sm mb-2">كلمة المرور</label>
+                    <input type="password" id="password" required class="input-admin" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors mt-4">
+                    تسجيل الدخول <i class="fas fa-sign-in-alt mr-2"></i>
+                </button>
+            </form>
         </div>
     </div>
 
-    <div id="dashboardScreen" class="hidden max-w-7xl mx-auto space-y-6">
+    <!-- قسم لوحة التحكم (مخفي حتى تسجيل الدخول) -->
+    <div id="dashboardSection" class="hidden w-full max-w-7xl p-4 lg:p-8 min-h-screen flex flex-col justify-start">
         
-        <div class="flex flex-col md:flex-row justify-between items-center panel p-6 rounded-2xl">
+        <!-- الهيدر -->
+        <header class="flex flex-col md:flex-row justify-between items-center bg-slate-800 p-6 rounded-2xl mb-8 border border-slate-700 shadow-lg gap-4">
             <div>
-                <h1 class="text-2xl font-black text-amber-400">مرحباً مس إنجليش 👑</h1>
-                <p class="text-sm text-gray-400 mt-1">إدارة الطلاب، المواعيد، وتغيير الإعدادات</p>
+                <h1 class="en-font text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">
+                    Miss Dina Fathi Dashboard
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">إدارة تسجيلات الطلاب للعام الجديد</p>
             </div>
-            <div class="flex gap-3 mt-4 md:mt-0">
-                <button onclick="changePassword()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm font-bold transition">🔑 تغيير الباسورد</button>
-                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-bold transition">🚪 تسجيل خروج</button>
-            </div>
-        </div>
+            <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 px-6 py-2.5 rounded-lg transition-all font-bold flex items-center gap-2">
+                تسجيل الخروج <i class="fas fa-power-off"></i>
+            </button>
+        </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="panel p-6 rounded-2xl h-fit">
-                <h3 class="font-bold border-b border-slate-700 pb-2 mb-4 text-amber-400">➕ إضافة ميعاد</h3>
-                
-                <select id="newGrade" class="w-full bg-slate-800 p-2 rounded mb-3 text-sm">
-                    <option value="1 إبتدائي">1 إبتدائي</option>
-                    <option value="2 إبتدائي">2 إبتدائي</option>
-                    <option value="3 إبتدائي">3 إبتدائي</option>
-                    <option value="4 إبتدائي">4 إبتدائي</option>
-                    <option value="5 إبتدائي">5 إبتدائي</option>
-                    <option value="6 إبتدائي">6 إبتدائي</option>
-                    <option value="1 إعدادي">1 إعدادي</option>
-                    <option value="2 إعدادي">2 إعدادي</option>
-                    <option value="3 إعدادي">3 إعدادي</option>
-                    <option value="1 ثانوي">1 ثانوي</option>
-                </select>
-
-                <input type="text" id="newName" placeholder="مثال: السبت 4 عصراً" class="w-full bg-slate-800 p-2 rounded mb-3 text-sm outline-none">
-                <button onclick="addGroup()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-bold text-sm">حفظ الميعاد</button>
-            </div>
-
-            <div class="panel p-6 rounded-2xl lg:col-span-2 overflow-x-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-amber-400">📋 كشف الطلاب المسجلين</h3>
-                    <button onclick="loadStudents()" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold">🔄 تحديث</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- إضافة ميعاد جديد -->
+            <div class="lg:col-span-1">
+                <div class="admin-card p-6 sticky top-6">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2 border-b border-slate-700 pb-4">
+                        <i class="fas fa-calendar-plus text-indigo-400"></i>
+                        إضافة مجموعة/ميعاد جديد
+                    </h3>
+                    <form id="addGroupForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2">اختر الصف الدراسي</label>
+                            <select id="newGrade" required class="input-admin cursor-pointer">
+                                <option value="">الصف...</option>
+                                <option value="الأول الابتدائي">الأول الابتدائي</option>
+                                <option value="الثاني الابتدائي">الثاني الابتدائي</option>
+                                <option value="الثالث الابتدائي">الثالث الابتدائي</option>
+                                <option value="الرابع الابتدائي">الرابع الابتدائي</option>
+                                <option value="الخامس الابتدائي">الخامس الابتدائي</option>
+                                <option value="السادس الابتدائي">السادس الابتدائي</option>
+                                <option value="الأول الإعدادي">الأول الإعدادي</option>
+                                <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+                                <option value="الثالث الإعدادي">الثالث الإعدادي</option>
+                                <option value="الأول الثانوي">الأول الثانوي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-slate-300 mb-2">الميعاد (أيام وساعات)</label>
+                            <input type="text" id="newGroup" required class="input-admin" placeholder="مثال: السبت والثلاثاء الساعة 4 عصراً">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+                            حفظ الميعاد في قاعدة البيانات <i class="fas fa-save mr-1"></i>
+                        </button>
+                    </form>
                 </div>
-                <table class="w-full text-right text-sm">
-                    <thead>
-                        <tr class="text-gray-400 border-b border-slate-700">
-                            <th class="p-2">الاسم</th>
-                            <th class="p-2">الكود</th>
-                            <th class="p-2">تليفون الأب</th>
-                            <th class="p-2">الميعاد</th>
-                            <th class="p-2">إلغاء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentsTable" class="divide-y divide-slate-800"></tbody>
-                </table>
             </div>
+
+            <!-- جدول الطلاب -->
+            <div class="lg:col-span-2">
+                <div class="admin-card p-0 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                        <h3 class="text-xl font-bold flex items-center gap-2">
+                            <i class="fas fa-users text-pink-400"></i>
+                            الطلاب المسجلين
+                        </h3>
+                        <button onclick="fetchStudents()" class="bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-lg transition-all text-sm font-bold flex items-center gap-2">
+                            <i class="fas fa-sync-alt"></i> تحديث القائمة
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>اسم الطالب</th>
+                                    <th>رقم الطالب</th>
+                                    <th>رقم ولي الأمر</th>
+                                    <th>الصف والمجموعة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <!-- سيتم جلب البيانات هنا -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        const _supabase = supabase.createClient(
-            "https://lhshvscofrestjvlespa.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxoc2h2c2NvZnJlc3Rqdmxlc3BhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkxNTYwNTIsImV4cCI6MjAzNDczMjA1Mn0.w-4u6XfV96yUfS3_vG_X-m-YvX6I4_43HsqoPJ76X-A"
-        );
+        // إعدادات قاعدة البيانات - تم ضبطها بناء على طلبك
+        const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        if (localStorage.getItem('isLoggedIn') === 'true') {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.remove('hidden');
-            loadStudents();
+        // نظام التوست في الأدمن
+        function showAdminToast(msg, isSuccess = true) {
+            const toast = document.getElementById('adminToast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            toast.className = isSuccess ? 'bg-emerald-500 flex items-center gap-3 show' : 'bg-red-500 flex items-center gap-3 show';
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        async function login() {
-            const pass = document.getElementById('adminPassword').value;
-            const { data } = await _supabase.from('admin_users').select('password').eq('id', 1).single();
-            
-            if (data && data.password === pass) {
-                localStorage.setItem('isLoggedIn', 'true');
-                window.location.reload();
+        // التحقق من حالة الدخول
+        window.onload = () => {
+            if (localStorage.getItem('DinaAdminLogged') === 'true') {
+                openDashboard();
             } else {
-                alert("❌ كلمة المرور خاطئة!");
+                document.body.classList.replace('items-start', 'items-center');
+            }
+        };
+
+        // تسجيل الدخول
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await _supabase.from('admin_users')
+                    .select('*').eq('username', user).eq('password', pass);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    localStorage.setItem('DinaAdminLogged', 'true');
+                    showAdminToast('تم تسجيل الدخول بنجاح!');
+                    openDashboard();
+                } else {
+                    showAdminToast('❌ بيانات الدخول غير صحيحة', false);
+                }
+            } catch (err) {
+                showAdminToast('حدث خطأ في الاتصال بقاعدة البيانات', false);
+                console.error(err);
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        });
+
+        function openDashboard() {
+            document.body.classList.remove('items-center');
+            document.body.classList.add('items-start');
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            fetchStudents();
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('DinaAdminLogged');
+            location.reload();
+        }
+
+        // جلب قائمة الطلاب
+        async function fetchStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400"><i class="fas fa-circle-notch fa-spin text-2xl mb-2 block"></i> جاري تحميل البيانات...</td></tr>`;
+
+            try {
+                const { data, error } = await _supabase.from('students_registration')
+                    .select('*').order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-500 text-lg">لا يوجد طلاب مسجلين حتى الآن.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.forEach(s => {
+                    const studentCodeDisplay = s.student_code ? `<span class="bg-indigo-900/50 text-indigo-300 px-3 py-1 rounded font-mono">${s.student_code}</span>` : `<span class="text-slate-500">- لم يتم الإدخال -</span>`;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-bold">${s.name}</td>
+                        <td>${studentCodeDisplay}</td>
+                        <td dir="ltr" class="text-right text-slate-300 font-mono tracking-wide">${s.parent_phone}</td>
+                        <td><span class="bg-slate-700 px-3 py-1 rounded text-sm">${s.grade}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                showAdminToast('تم تحديث قائمة الطلاب');
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-red-400">❌ حدث خطأ في تحميل البيانات</td></tr>`;
             }
         }
 
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.reload();
-        }
+        // إضافة مجموعة/ميعاد جديد
+        document.getElementById('addGroupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
 
-        async function changePassword() {
-            const newPass = prompt("أدخل كلمة المرور الجديدة:");
-            if (!newPass) return;
-
-            const { error } = await _supabase.from('admin_users').update({ password: newPass }).eq('id', 1);
-            if (error) alert("❌ خطأ في التغيير");
-            else alert("✅ تم تغيير كلمة المرور بنجاح!");
-        }
-
-        async function addGroup() {
             const grade = document.getElementById('newGrade').value;
-            const name = document.getElementById('newName').value;
-            if (!name) return;
-            await _supabase.from('groups').insert([{ grade_level: grade, group_name: name }]);
-            alert("تم إضافة الميعاد!");
-            document.getElementById('newName').value = '';
-        }
+            const groupName = document.getElementById('newGroup').value;
 
-        async function loadStudents() {
-            const tbody = document.getElementById('studentsTable');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">جاري التحميل...</td></tr>';
-            const { data } = await _supabase.from('students_registration').select('*').order('created_at', { ascending: false });
-            
-            tbody.innerHTML = '';
-            data.forEach(s => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800">
-                        <td class="p-2 text-white">${s.name}</td>
-                        <td class="p-2 text-amber-500 font-bold">${s.student_code}</td>
-                        <td class="p-2 text-gray-300">${s.parent_phone}</td>
-                        <td class="p-2">${s.grade}</td>
-                        <td class="p-2">
-                            <button onclick="deleteStudent(${s.id})" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs text-white">حذف</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+            try {
+                const { error } = await _supabase.from('groups').insert([{ grade: grade, group_name: groupName }]);
+                
+                if (error) throw error;
 
-        async function deleteStudent(id) {
-            if (!confirm("هل أنت متأكد من حذف هذا الطالب نهائياً؟")) return;
-            await _supabase.from('students_registration').delete().eq('id', id);
-            loadStudents();
-        }
+                showAdminToast('✅ تم إضافة الميعاد الجديد بنجاح!');
+                document.getElementById('addGroupForm').reset();
+            } catch (err) {
+                console.error(err);
+                showAdminToast('❌ حدث خطأ أثناء إضافة الميعاد', false);
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        });
     </script>
 </body>
 </html>
