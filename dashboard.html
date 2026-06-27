@@ -424,3 +424,84 @@
 
         async function addNewGroup() {
             const d1 = document.ge
+async function addNewGroup() {
+    if (!currentSelectedGrade) {
+        showToast('اختاري الصف الأول', true);
+        return;
+    }
+
+    const d1 = document.getElementById('day1').value;
+    const d2 = document.getElementById('day2').value;
+    const time = document.getElementById('groupTime').value;
+
+    const groupName =
+        d2 === 'فقط'
+            ? `${d1} - ${time}`
+            : `${d1} ${d2} - ${time}`;
+
+    const { error } = await _supabase
+        .from('groups')
+        .insert([{
+            grade: currentSelectedGrade,
+            group_name: groupName
+        }]);
+
+    if (error) {
+        showToast('فشل إضافة الميعاد', true);
+        return;
+    }
+
+    showToast('تم إضافة الميعاد بنجاح');
+    loadDataForGrade();
+}
+
+async function deleteGroup(id) {
+    if (!confirm('هل تريد حذف الميعاد؟')) return;
+
+    const { error } = await _supabase
+        .from('groups')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        showToast('فشل الحذف', true);
+        return;
+    }
+
+    showToast('تم حذف الميعاد');
+    loadDataForGrade();
+}
+
+async function removeStudent(id, name) {
+    if (!confirm(`حذف الطالب ${name} ؟`)) return;
+
+    const { error } = await _supabase
+        .from('students_registration')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        showToast('فشل حذف الطالب', true);
+        return;
+    }
+
+    showToast('تم حذف الطالب');
+    loadDataForGrade();
+}
+
+async function updateStudentStatus(id, status) {
+    const { error } = await _supabase
+        .from('students_registration')
+        .update({ status })
+        .eq('id', id);
+
+    if (error) {
+        showToast('فشل تحديث الحالة', true);
+        return;
+    }
+
+    showToast('تم تحديث الحالة');
+    loadDataForGrade();
+}    </script>
+</body>
+</html>
