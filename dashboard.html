@@ -3,155 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dina Fatehy</title>
+    <title>لوحة التحكم | Miss Dina Fatehy</title>
     
-    <!-- استدعاء المكتبات -->
+    <!-- المكتبات الأساسية -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- الخطوط -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Poppins:wght@500;700&display=swap');
         
+        :root {
+            --primary: #6366f1;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.8);
+        }
+
         body { 
             font-family: 'Cairo', sans-serif; 
-            background-color: #0f172a; 
-            color: #f1f5f9; 
-            min-height: 100vh; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc; 
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         
-        .en-font { 
-            font-family: 'Poppins', sans-serif; 
+        .en-font { font-family: 'Poppins', sans-serif; }
+
+        /* تأثيرات الكروت (Glassmorphism) */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .admin-card {
-            background: #1e293b; 
-            border: 1px solid #334155; 
-            border-radius: 1rem; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-        
-        .input-admin {
-            width: 100%; 
-            padding: 0.75rem 1rem; 
-            background: #0f172a;
-            border: 1px solid #334155; 
-            border-radius: 0.5rem; 
+        .input-style {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.5rem;
             color: white;
-            transition: border-color 0.2s; 
             outline: none;
+            transition: all 0.3s;
         }
         
-        .input-admin:focus { 
-            border-color: #6366f1; 
+        .input-style:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        table { 
-            border-collapse: separate; 
-            border-spacing: 0; 
-            width: 100%; 
-        }
-        
-        th { 
-            background-color: #334155; 
-            color: #94a3b8; 
-            font-weight: 600; 
-            padding: 1rem; 
-            text-align: right; 
-        }
-        
-        td { 
-            padding: 1rem; 
-            border-bottom: 1px solid #334155; 
-            vertical-align: middle; 
-        }
-        
-        tr:hover td { 
-            background-color: rgba(99, 102, 241, 0.05); 
-        }
-        
-        th:first-child { 
-            border-top-right-radius: 0.5rem; 
-        }
-        
-        th:last-child { 
-            border-top-left-radius: 0.5rem; 
-        }
+        /* الجداول */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { background: rgba(30, 41, 59, 0.9); padding: 1rem; text-align: right; color: #94a3b8; font-weight: 600; }
+        td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        tr:hover td { background: rgba(99, 102, 241, 0.05); }
+        .blocked-student td { opacity: 0.4; filter: grayscale(100%); }
 
-        .blocked-student td { 
-            opacity: 0.5; 
-            background-color: rgba(239, 68, 68, 0.05); 
-        }
-        
+        /* سكرول بار مخصص */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+
+        /* الإشعارات */
         #toast {
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            z-index: 9999;
-            padding: 1rem 1.5rem; 
-            border-radius: 0.5rem; 
-            color: white;
-            transform: translateX(150%); 
-            transition: transform 0.4s;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); 
-            font-weight: bold;
+            position: fixed; top: 20px; right: 20px; z-index: 50;
+            padding: 1rem 1.5rem; border-radius: 0.5rem; color: white;
+            transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: bold; display: flex; align-items: center; gap: 10px;
         }
-        
-        #toast.show { 
-            transform: translateX(0); 
-        }
+        #toast.show { transform: translateX(0); }
 
-        /* ستايل شاشة الأنيميشن */
-        #introAnimation {
-            transition: opacity 0.8s ease-in-out;
+        /* شاشة التحميل الأولية */
+        #splashScreen {
+            position: fixed; inset: 0; background: #0f172a; z-index: 9999;
+            display: flex; align-items: center; justify-center; flex-direction: column;
+            transition: opacity 0.8s ease;
         }
-        
-        #introText {
-            transition: opacity 0.5s ease-in-out;
-        }
+        .fade-text { transition: opacity 0.5s ease; opacity: 0; text-align: center; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-4">
 
-    <!-- شاشة الأنيميشن الترحيبية -->
-    <div id="introAnimation" class="fixed inset-0 z-[10000] bg-[#0f172a] flex flex-col items-center justify-center">
-        <h2 id="introText" class="text-3xl md:text-5xl font-black text-indigo-400 text-center leading-relaxed px-4 opacity-0"></h2>
+    <!-- 1. شاشة الأنيميشن الترحيبية -->
+    <div id="splashScreen" class="flex justify-center items-center w-full h-full">
+        <h2 id="splashText" class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 fade-text leading-relaxed px-4"></h2>
     </div>
 
-    <!-- نظام الإشعارات -->
-    <div id="toast" class="bg-indigo-600 flex items-center gap-3">
-        <i class="fas fa-info-circle text-xl"></i>
+    <!-- الإشعارات الذكية -->
+    <div id="toast" class="bg-indigo-600 shadow-lg shadow-indigo-500/50">
+        <i id="toastIcon" class="fas fa-info-circle text-xl"></i>
         <span id="toastMsg"></span>
     </div>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginSection" class="hidden w-full max-w-md admin-card p-8 mt-10">
+    <!-- 2. شاشة تسجيل الدخول -->
+    <div id="loginSection" class="hidden w-full max-w-md glass-card p-10 mt-10">
         <div class="text-center mb-8">
-            <i class="fas fa-user-shield text-5xl text-indigo-500 mb-4"></i>
-            <h2 class="en-font text-3xl font-bold">Admin Login</h2>
+            <div class="inline-block p-4 rounded-full bg-indigo-500/10 mb-4">
+                <i class="fas fa-shield-alt text-5xl text-indigo-400"></i>
+            </div>
+            <h2 class="en-font text-3xl font-bold">Admin Portal</h2>
+            <p class="text-slate-400 mt-2 text-sm">Miss Dina Fatehy - Dashboard</p>
         </div>
-        <form id="loginForm" class="space-y-5">
-            <input type="text" id="username" required class="input-admin" placeholder="اسم المستخدم (admin)">
-            <input type="password" id="password" required class="input-admin" placeholder="كلمة المرور (admin123)">
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg">
-                دخول <i class="fas fa-sign-in-alt ml-2"></i>
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-bold text-slate-300 mb-2">اسم المستخدم</label>
+                <input type="text" id="username" required class="input-style" placeholder="admin">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-300 mb-2">كلمة المرور</label>
+                <input type="password" id="password" required class="input-style" placeholder="••••••••">
+            </div>
+            <button type="submit" id="loginBtn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-lg shadow-lg transform hover:scale-[1.02] transition-all">
+                دخول للنظام <i class="fas fa-sign-in-alt ml-2"></i>
             </button>
         </form>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
-    <div id="dashboardSection" class="hidden w-full max-w-7xl flex flex-col gap-6 mt-4">
+    <!-- 3. لوحة التحكم الرئيسية -->
+    <div id="dashboardSection" class="hidden w-full max-w-7xl flex flex-col gap-6 mt-4 pb-10">
         
-        <div class="admin-card p-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-slate-800 to-slate-900">
-            <div>
-                <h1 class="en-font text-3xl font-black text-indigo-400">Miss Dina Fatehy</h1>
-                <p class="text-slate-400 text-sm">نظام الإدارة المنظم - على سنجة 10</p>
+        <!-- الهيدر -->
+        <div class="glass-card p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-2xl font-bold shadow-lg">DF</div>
+                <div>
+                    <h1 class="en-font text-2xl md:text-3xl font-black text-white">Miss Dina Fatehy</h1>
+                    <p class="text-indigo-300 text-sm font-bold">الإدارة الذكية للطلاب</p>
+                </div>
             </div>
             
             <div class="w-full md:w-1/3">
-                <label class="block text-indigo-300 font-bold mb-2"><i class="fas fa-filter"></i> اختر الصف لعرض بياناته:</label>
-                <select id="mainGradeFilter" class="input-admin border-indigo-500 text-lg cursor-pointer">
-                    <option value="">-- يرجى اختيار الصف الدراسي --</option>
+                <select id="mainGradeFilter" class="input-style text-lg cursor-pointer font-bold text-indigo-100">
+                    <option value="">-- اختر الصف لعرض البيانات --</option>
                     <option value="الأول الابتدائي">الأول الابتدائي</option>
                     <option value="الثاني الابتدائي">الثاني الابتدائي</option>
                     <option value="الثالث الابتدائي">الثالث الابتدائي</option>
@@ -165,93 +152,69 @@
                 </select>
             </div>
             
-            <button onclick="logout()" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg font-bold transition">خروج</button>
+            <button onclick="logout()" class="bg-red-500/10 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white px-6 py-2 rounded-lg font-bold transition-all flex items-center gap-2">
+                <i class="fas fa-power-off"></i> خروج
+            </button>
         </div>
 
-        <div id="welcomeMessage" class="text-center py-20 text-slate-500 text-xl">
-            <i class="fas fa-hand-pointer text-4xl mb-4 block"></i>
-            برجاء اختيار الصف الدراسي من القائمة بالأعلى لعرض الطلبة والمواعيد.
+        <!-- رسالة الانتظار -->
+        <div id="welcomeMessage" class="flex flex-col items-center justify-center py-32 text-slate-400 glass-card">
+            <i class="fas fa-satellite-dish text-6xl mb-6 text-indigo-500/50 animate-pulse"></i>
+            <h2 class="text-2xl font-bold mb-2">النظام جاهز للعمل</h2>
+            <p>يرجى اختيار الصف الدراسي من القائمة العلوية للبدء.</p>
         </div>
 
+        <!-- محتوى البيانات -->
         <div id="gradeContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- عمود المواعيد -->
             <div class="lg:col-span-1 space-y-6">
-                
-                <div class="admin-card p-6 border-2 border-indigo-500/30">
-                    <h3 class="text-lg font-bold mb-4 text-emerald-400 border-b border-slate-700 pb-2">
-                        <i class="fas fa-magic"></i> بناء ميعاد سريع لـ <span id="lblAddGrade" class="text-white"></span>
+                <!-- كارت إضافة ميعاد -->
+                <div class="glass-card p-6 border-t-4 border-emerald-500">
+                    <h3 class="text-lg font-bold mb-4 text-emerald-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-plus"></i> إضافة ميعاد لـ <span id="lblAddGrade" class="text-white text-sm"></span>
                     </h3>
                     <div class="space-y-4">
                         <div class="flex gap-2">
-                            <select id="day1" class="input-admin cursor-pointer p-2 w-1/2 text-sm">
-                                <option value="السبت">السبت</option>
-                                <option value="الأحد">الأحد</option>
-                                <option value="الإثنين">الإثنين</option>
-                                <option value="الثلاثاء">الثلاثاء</option>
-                                <option value="الأربعاء">الأربعاء</option>
-                                <option value="الخميس">الخميس</option>
-                                <option value="الجمعة">الجمعة</option>
+                            <select id="day1" class="input-style p-2 w-1/2 text-sm cursor-pointer">
+                                <option value="السبت">السبت</option><option value="الأحد">الأحد</option><option value="الإثنين">الإثنين</option><option value="الثلاثاء">الثلاثاء</option><option value="الأربعاء">الأربعاء</option><option value="الخميس">الخميس</option><option value="الجمعة">الجمعة</option>
                             </select>
-                            
-                            <select id="day2" class="input-admin cursor-pointer p-2 w-1/2 text-sm">
-                                <option value="والأربعاء">والأربعاء</option>
-                                <option value="والخميس">والخميس</option>
-                                <option value="والجمعة">والجمعة</option>
-                                <option value="والسبت">والسبت</option>
-                                <option value="والأحد">والأحد</option>
-                                <option value="والإثنين">والإثنين</option>
-                                <option value="والثلاثاء">والثلاثاء</option>
-                                <option value="فقط">فقط (يوم واحد)</option>
+                            <select id="day2" class="input-style p-2 w-1/2 text-sm cursor-pointer">
+                                <option value="والأربعاء">والأربعاء</option><option value="والخميس">والخميس</option><option value="والجمعة">والجمعة</option><option value="والسبت">والسبت</option><option value="والأحد">والأحد</option><option value="والإثنين">والإثنين</option><option value="والثلاثاء">والثلاثاء</option><option value="فقط">فقط (يوم)</option>
                             </select>
                         </div>
-
-                        <select id="groupTime" class="input-admin cursor-pointer">
-                            <option value="الساعة 9:00 صباحاً">الساعة 9:00 صباحاً</option>
-                            <option value="الساعة 10:00 صباحاً">الساعة 10:00 صباحاً</option>
-                            <option value="الساعة 11:00 صباحاً">الساعة 11:00 صباحاً</option>
-                            <option value="الساعة 12:00 ظهراً">الساعة 12:00 ظهراً</option>
-                            <option value="الساعة 1:00 ظهراً">الساعة 1:00 ظهراً</option>
-                            <option value="الساعة 2:00 ظهراً">الساعة 2:00 ظهراً</option>
-                            <option value="الساعة 3:00 عصراً">الساعة 3:00 عصراً</option>
-                            <option value="الساعة 4:00 عصراً">الساعة 4:00 عصراً</option>
-                            <option value="الساعة 5:00 عصراً">الساعة 5:00 عصراً</option>
-                            <option value="الساعة 6:00 مساءً">الساعة 6:00 مساءً</option>
-                            <option value="الساعة 7:00 مساءً">الساعة 7:00 مساءً</option>
-                            <option value="الساعة 8:00 مساءً">الساعة 8:00 مساءً</option>
-                            <option value="الساعة 9:00 مساءً">الساعة 9:00 مساءً</option>
-                        </select>
-
-                        <button onclick="addNewGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold shadow-lg transition">
-                            <i class="fas fa-plus-circle"></i> إضافة الميعاد فوراً
+                        <input type="time" id="groupTimeInput" class="input-style cursor-pointer" required>
+                        <button onclick="addNewGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-bold shadow-lg transition-all flex justify-center items-center gap-2">
+                            <i class="fas fa-check-circle"></i> تأكيد الميعاد
                         </button>
                     </div>
                 </div>
 
-                <div class="admin-card p-6">
-                    <h3 class="text-lg font-bold mb-4 text-indigo-400 border-b border-slate-700 pb-2">
-                        <i class="fas fa-list"></i> المواعيد المسجلة
+                <!-- كارت المواعيد الحالية -->
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4 text-indigo-400 flex items-center gap-2">
+                        <i class="fas fa-list-ul"></i> المواعيد المتاحة
                     </h3>
-                    <ul id="groupsList" class="space-y-2"></ul>
+                    <ul id="groupsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></ul>
                 </div>
             </div>
 
             <!-- عمود الطلبة -->
-            <div class="lg:col-span-2 admin-card p-0 overflow-hidden">
-                <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-pink-400">
-                        <i class="fas fa-users"></i> طلبة <span id="lblStudentsGrade" class="text-white"></span>
+            <div class="lg:col-span-2 glass-card p-0 overflow-hidden flex flex-col h-full">
+                <div class="p-5 bg-slate-800/80 border-b border-slate-700/50 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-pink-400 flex items-center gap-2">
+                        <i class="fas fa-users-cog"></i> سجل طلاب <span id="lblStudentsGrade" class="text-white text-sm"></span>
                     </h3>
-                    <span id="studentsCount" class="bg-indigo-600 px-3 py-1 rounded-full text-sm font-bold">0 طالب</span>
+                    <span id="studentsCount" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-4 py-1.5 rounded-full text-sm font-bold shadow-inner">0 طالب</span>
                 </div>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto flex-1 p-4">
                     <table>
                         <thead>
                             <tr>
-                                <th>الاسم / الكود</th>
-                                <th>الميعاد</th>
-                                <th>ولي الأمر</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th>بيانات الطالب</th>
+                                <th>الميعاد المسجل</th>
+                                <th>رقم ولي الأمر</th>
+                                <th class="text-center">إدارة</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTable"></tbody>
@@ -261,85 +224,109 @@
         </div>
     </div>
 
-    <!-- برمجة النظام -->
+    <!-- 4. برمجة النظام بالكامل (JavaScript) -->
     <script>
-        const _supabase = supabase.createClient('https://gxmadpzxcrfjuciclqhi.supabase.co', 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ');
+        // إعداد الاتصال بقاعدة البيانات
+        const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         let currentSelectedGrade = '';
 
-        function showToast(msg, isError = false) {
+        // دالة الإشعارات الاحترافية
+        function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
             document.getElementById('toastMsg').innerText = msg;
-            t.className = isError ? 'bg-red-500 flex items-center gap-3 show' : 'bg-emerald-500 flex items-center gap-3 show';
-            setTimeout(() => {
-                t.classList.remove('show');
-            }, 3000);
+            
+            if (type === 'error') {
+                t.className = 'bg-red-600 shadow-lg shadow-red-500/50 show';
+                icon.className = 'fas fa-exclamation-triangle text-xl';
+            } else if (type === 'warning') {
+                t.className = 'bg-orange-500 shadow-lg shadow-orange-500/50 show';
+                icon.className = 'fas fa-ban text-xl';
+            } else {
+                t.className = 'bg-emerald-600 shadow-lg shadow-emerald-500/50 show';
+                icon.className = 'fas fa-check-circle text-xl';
+            }
+            
+            setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        // تشغيل الأنيميشن أول ما الموقع يفتح
+        // تشغيل الأنيميشن عند فتح الصفحة
         window.onload = () => {
-            const introSection = document.getElementById('introAnimation');
-            const introText = document.getElementById('introText');
+            const splash = document.getElementById('splashScreen');
+            const splashText = document.getElementById('splashText');
             
             const messages = [
-                "مرحبا بك يا مس دينا فتحي في لوحه التحكم",
-                "نتمنى ان يعجبك هذا الموقع",
-                "واحنا بنجهز كل حاجه عشان تكون جاهزه ليكي"
+                "مرحباً بكِ يا ميس دينا فتحي",
+                "في لوحة التحكم الخاصة بكِ",
+                "يتم الآن تجهيز بيئة العمل..."
             ];
             
-            let msgIndex = 0;
-
-            function playAnimation() {
-                if (msgIndex < messages.length) {
-                    introText.style.opacity = '0';
-                    
+            let i = 0;
+            function playAnim() {
+                if (i < messages.length) {
+                    splashText.style.opacity = '0';
                     setTimeout(() => {
-                        introText.innerText = messages[msgIndex];
-                        introText.style.opacity = '1';
-                        msgIndex++;
-                        
-                        setTimeout(playAnimation, 2500); 
-                    }, 500);
+                        splashText.innerText = messages[i];
+                        splashText.style.opacity = '1';
+                        i++;
+                        setTimeout(playAnim, 2000);
+                    }, 400);
                 } else {
-                    introSection.style.opacity = '0';
-                    
+                    splash.style.opacity = '0';
                     setTimeout(() => {
-                        introSection.classList.add('hidden');
-                        
-                        // بعد ما الأنيميشن يخلص، نشوف هيدخل على اللوحة ولا يسجل دخول
-                        if(localStorage.getItem('DinaAdmin') === 'true') {
-                            showDashboard(); 
-                        } else {
-                            document.getElementById('loginSection').classList.remove('hidden');
-                        }
+                        splash.style.display = 'none';
+                        checkLoginStatus();
                     }, 800);
                 }
             }
-            
-            playAnimation();
+            playAnim();
         };
 
+        // التحقق من حالة تسجيل الدخول
+        function checkLoginStatus() {
+            if(sessionStorage.getItem('DinaAdmin_Logged') === 'true') {
+                showDashboard(); 
+            } else {
+                document.getElementById('loginSection').classList.remove('hidden');
+            }
+        }
+
+        // تسجيل الدخول مع ربط حقيقي بجدول admin_users
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('username').value;
+            const btn = document.getElementById('loginBtn');
+            const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value;
             
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+            btn.disabled = true;
+
             try {
-                const { data } = await _supabase.from('admin_users').select('*').eq('username', u).eq('password', p);
-                if ((data && data.length > 0) || (u === 'admin' && p === 'admin123')) {
-                    localStorage.setItem('DinaAdmin', 'true');
-                    showDashboard();
-                    showToast('تم تسجيل الدخول بنجاح');
+                // استدعاء البيانات من جدول admin_users
+                const { data, error } = await _supabase
+                    .from('admin_users')
+                    .select('*')
+                    .eq('username', u)
+                    .eq('password', p);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    sessionStorage.setItem('DinaAdmin_Logged', 'true');
+                    showToast('أهلاً بكِ يا ميس دينا!');
+                    setTimeout(() => { showDashboard(); }, 1000);
                 } else {
-                    showToast('بيانات غير صحيحة', true);
+                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
                 }
             } catch (err) {
-                if(u === 'admin' && p === 'admin123') {
-                    localStorage.setItem('DinaAdmin', 'true');
-                    showDashboard();
-                    showToast('تم الدخول بنجاح');
-                } else {
-                    showToast('خطأ في الاتصال بقاعدة البيانات', true);
-                }
+                console.error(err);
+                showToast('تأكد من إيقاف الـ RLS في Supabase', 'error');
+            } finally {
+                btn.innerHTML = 'دخول للنظام <i class="fas fa-sign-in-alt ml-2"></i>';
+                btn.disabled = false;
             }
         });
 
@@ -350,10 +337,11 @@
         }
 
         function logout() { 
-            localStorage.removeItem('DinaAdmin'); 
+            sessionStorage.removeItem('DinaAdmin_Logged'); 
             location.reload(); 
         }
 
+        // فلترة الصفوف
         document.getElementById('mainGradeFilter').addEventListener('change', (e) => {
             currentSelectedGrade = e.target.value;
             if(!currentSelectedGrade) {
@@ -363,29 +351,33 @@
             }
             document.getElementById('welcomeMessage').classList.add('hidden');
             document.getElementById('gradeContent').classList.remove('hidden');
-            document.getElementById('lblAddGrade').innerText = currentSelectedGrade;
-            document.getElementById('lblStudentsGrade').innerText = currentSelectedGrade;
+            document.getElementById('lblAddGrade').innerText = `(${currentSelectedGrade})`;
+            document.getElementById('lblStudentsGrade').innerText = `(${currentSelectedGrade})`;
             loadDataForGrade();
         });
 
+        // جلب البيانات للصف المختار
         async function loadDataForGrade() {
-            document.getElementById('studentsTable').innerHTML = '<tr><td colspan="4" class="text-center py-8">جاري التحميل...</td></tr>';
+            document.getElementById('studentsTable').innerHTML = '<tr><td colspan="4" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-indigo-500"></i></td></tr>';
             
+            // جلب المواعيد
             const { data: groups } = await _supabase.from('groups').select('*').eq('grade', currentSelectedGrade);
             const groupsList = document.getElementById('groupsList');
             groupsList.innerHTML = '';
             
             if(groups && groups.length > 0) {
                 groups.forEach(g => {
-                    groupsList.innerHTML += `<li class="bg-slate-700 p-3 rounded flex justify-between items-center text-sm border border-slate-600">
-                        <span class="font-bold text-emerald-300">${g.group_name}</span>
-                        <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300 bg-red-400/10 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
+                    groupsList.innerHTML += `
+                    <li class="bg-slate-700/50 p-3 rounded-lg flex justify-between items-center border border-slate-600/50 hover:border-indigo-500/50 transition">
+                        <span class="font-bold text-indigo-300 text-sm"><i class="far fa-clock mr-1"></i> ${g.group_name}</span>
+                        <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 p-2 rounded transition" title="مسح الميعاد"><i class="fas fa-trash-alt"></i></button>
                     </li>`;
                 });
             } else {
-                groupsList.innerHTML = '<li class="text-slate-500 text-sm">لا يوجد مواعيد مسجلة</li>';
+                groupsList.innerHTML = '<div class="text-center py-4 text-slate-500 text-sm"><i class="fas fa-folder-open text-2xl mb-2 block"></i>لا يوجد مواعيد مسجلة</div>';
             }
 
+            // جلب الطلبة
             const { data: students } = await _supabase.from('students_registration').select('*').like('grade', `${currentSelectedGrade}%`).order('created_at', { ascending: false });
             renderStudents(students || []);
         }
@@ -396,102 +388,86 @@
             tbody.innerHTML = '';
             
             if(students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">لا يوجد طلاب</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-12 text-slate-500"><i class="fas fa-user-slash text-4xl mb-3 block opacity-50"></i>لم يسجل أي طالب في هذا الصف حتى الآن</td></tr>';
                 return;
             }
 
             students.forEach(s => {
                 const isBlocked = s.status === 'blocked';
                 const trClass = isBlocked ? 'blocked-student' : '';
-                const blockIcon = isBlocked ? 'fa-unlock' : 'fa-ban';
+                const blockIcon = isBlocked ? 'fa-user-check' : 'fa-user-lock';
+                const blockColor = isBlocked ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500';
                 const blockAction = isBlocked ? 'active' : 'blocked';
-                const waMsg = `نعتذر لحضرتك، تم اكتمال العدد في مجموعة (${s.grade}) للطالب ${s.name}.`;
+                const waMsg = `أهلاً بك، بخصوص الطالب/ة ${s.name} في ${s.grade}...`;
                 
                 tbody.innerHTML += `
-                    <tr class="${trClass}">
-                        <td><div class="font-bold text-white">${s.name}</div><div class="text-xs text-indigo-300 mt-1">Code: ${s.student_code || 'بدون'}</div></td>
+                    <tr class="${trClass} transition-colors duration-200">
+                        <td>
+                            <div class="font-bold text-white text-md">${s.name}</div>
+                            <div class="text-xs text-indigo-400 mt-1 font-mono bg-indigo-900/30 inline-block px-2 py-0.5 rounded">كود: ${s.student_code || 'N/A'}</div>
+                        </td>
                         <td class="text-sm font-bold text-emerald-300">${s.grade.split(' - ')[1] || s.grade}</td>
-                        <td dir="ltr" class="text-right font-mono">${s.parent_phone}</td>
-                        <td class="text-center space-x-1 space-x-reverse min-w-[120px]">
-                            <a href="https://wa.me/2${s.parent_phone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="inline-block bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded text-xs"><i class="fab fa-whatsapp"></i></a>
-                            <button onclick="removeStudent(${s.id}, '${s.name}')" class="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-xs"><i class="fas fa-trash"></i></button>
-                            <button onclick="updateStudentStatus(${s.id}, '${blockAction}')" class="bg-orange-600 hover:bg-orange-500 text-white px-2 py-1 rounded text-xs"><i class="fas ${blockIcon}"></i></button>
+                        <td dir="ltr" class="text-right font-mono text-slate-300">${s.parent_phone}</td>
+                        <td class="text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="https://wa.me/2${s.parent_phone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="bg-green-600 hover:bg-green-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="مراسلة واتساب"><i class="fab fa-whatsapp"></i></a>
+                                <button onclick="updateStudentStatus(${s.id}, '${blockAction}')" class="${blockColor} text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="${isBlocked ? 'فك الحظر' : 'حظر الطالب'}"><i class="fas ${blockIcon}"></i></button>
+                                <button onclick="removeStudent(${s.id}, '${s.name}')" class="bg-red-600 hover:bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="حذف نهائي"><i class="fas fa-trash"></i></button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        async function addNewGroup() {
-            if (!currentSelectedGrade) {
-                showToast('يرجى اختيار الصف الدراسي أولاً', true);
-                return;
+        // تحويل الوقت من 24h لـ 12h AM/PM بشكل شيك
+        function formatAMPM(time24) {
+            let [hours, minutes] = time24.split(':');
+            let ampm = hours >= 12 ? 'مساءً' : 'صباحاً';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            return `${hours}:${minutes} ${ampm}`;
+        }
 
+        async function addNewGroup() {
             const d1 = document.getElementById('day1').value;
             const d2 = document.getElementById('day2').value;
-            const time = document.getElementById('groupTime').value;
+            const timeVal = document.getElementById('groupTimeInput').value;
             
-            // ضبط اسم الميعاد عشان لو الميعاد يوم واحد (فقط)
-            let groupName = '';
-            if (d2 === 'فقط') {
-                groupName = `${d1} فقط ${time}`;
-            } else {
-                groupName = `${d1} ${d2} ${time}`;
+            if(!timeVal) {
+                showToast('يرجى تحديد وقت الحصة', 'error');
+                return;
             }
 
-            try {
-                const { error } = await _supabase.from('groups').insert([{
-                    grade: currentSelectedGrade,
-                    group_name: groupName
-                }]);
-                
-                if (error) throw error;
-                showToast('تمت إضافة الميعاد بنجاح');
-                loadDataForGrade(); // تحديث الجدول عشان يظهر الميعاد الجديد
-            } catch (error) {
-                showToast('حدث خطأ أثناء إضافة الميعاد', true);
-                console.error(error);
-            }
+            const formattedTime = formatAMPM(timeVal);
+            const finalTime = (d2 === 'فقط') ? `${d1} الساعة ${formattedTime}` : `${d1} ${d2} الساعة ${formattedTime}`;
+            
+            await _supabase.from('groups').insert([{ grade: currentSelectedGrade, group_name: finalTime }]);
+            showToast('تمت إضافة الميعاد بنجاح');
+            loadDataForGrade();
         }
 
         async function deleteGroup(id) {
-            if(!confirm('هل أنت متأكد من حذف هذا الميعاد؟')) return;
-            try {
-                const { error } = await _supabase.from('groups').delete().eq('id', id);
-                if (error) throw error;
-                showToast('تم حذف الميعاد بنجاح');
+            if(confirm('هل أنتِ متأكدة من حذف هذا الميعاد نهائياً؟')) {
+                await _supabase.from('groups').delete().eq('id', id);
+                showToast('تم حذف الميعاد', 'warning');
                 loadDataForGrade();
-            } catch (err) {
-                showToast('حدث خطأ أثناء الحذف', true);
-                console.error(err);
             }
         }
 
         async function removeStudent(id, name) {
-            if(!confirm(`هل أنت متأكد من حذف بيانات الطالب: ${name}؟`)) return;
-            try {
-                const { error } = await _supabase.from('students_registration').delete().eq('id', id);
-                if (error) throw error;
-                showToast('تم حذف الطالب بنجاح');
+            if(confirm(`هل تريدين مسح بيانات الطالب (${name}) نهائياً؟`)) {
+                await _supabase.from('students_registration').delete().eq('id', id);
+                showToast('تم حذف الطالب بنجاح', 'warning');
                 loadDataForGrade();
-            } catch (err) {
-                showToast('حدث خطأ أثناء الحذف', true);
-                console.error(err);
             }
         }
 
         async function updateStudentStatus(id, newStatus) {
-            try {
-                const { error } = await _supabase.from('students_registration').update({ status: newStatus }).eq('id', id);
-                if (error) throw error;
-                showToast(newStatus === 'blocked' ? 'تم حظر الطالب' : 'تم تفعيل الطالب');
-                loadDataForGrade();
-            } catch (err) {
-                showToast('حدث خطأ أثناء تغيير حالة الطالب', true);
-                console.error(err);
-            }
+            await _supabase.from('students_registration').update({ status: newStatus }).eq('id', id);
+            showToast(newStatus === 'blocked' ? 'تم حظر الطالب بنجاح' : 'تم فك حظر الطالب');
+            loadDataForGrade();
         }
-
     </script>
 </body>
 </html>
