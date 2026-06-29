@@ -1,161 +1,147 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - ميس دينا فتحي</title>
+    <title>Dashboard - Ms. Dina Fathy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .toast {
-            position: fixed;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 1000;
-        }
-        .toast.show {
-            top: 20px;
-        }
-        .blocked-student {
-            opacity: 0.5;
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-        #splashScreen {
-            transition: opacity 0.8s ease-out;
-        }
-        #splashText {
-            transition: opacity 0.4s ease-in-out;
-        }
-        table { border-collapse: separate; border-spacing: 0 8px; }
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
+        .toast.show { top: 20px; }
+        .blocked-student { opacity: 0.5; background-color: rgba(239, 68, 68, 0.1); }
+        #splashScreen { transition: opacity 0.8s ease-out; }
+        #splashText { transition: opacity 0.4s ease-in-out; }
+        table { border-collapse: separate; border-spacing: 0 8px; width: 100%; text-align: left; }
         td, th { padding: 12px; }
         tr { background: rgba(30, 41, 59, 0.7); }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans transition-all duration-500 justify-center">
 
-    <!-- الإشعارات الذكية (Toasts) -->
     <div id="toast" class="toast text-white px-6 py-3 rounded-full flex items-center gap-3">
         <i id="toastIcon" class="fas fa-info-circle text-xl"></i>
         <span id="toastMsg" class="font-bold"></span>
     </div>
 
-    <!-- شاشة التحميل الافتتاحية -->
+    <!-- Splash Screen -->
     <div id="splashScreen" class="fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center">
         <i class="fas fa-graduation-cap text-6xl text-indigo-500 mb-6 animate-bounce"></i>
         <h1 id="splashText" class="text-3xl font-bold text-white opacity-0 text-center px-4"></h1>
     </div>
 
-    <!-- قسم تسجيل الدخول -->
-    <div id="loginSection" class="hidden w-full max-w-sm mx-auto p-8 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700">
+    <!-- Login Section -->
+    <div id="loginSection" class="hidden w-full max-w-sm mx-auto p-8 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 mt-20">
         <div class="text-center mb-8">
             <div class="w-20 h-20 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
                 <i class="fas fa-user-shield text-3xl text-indigo-400"></i>
             </div>
-            <h2 class="text-2xl font-bold">تسجيل الدخول</h2>
-            <p class="text-slate-400 text-sm mt-1">لوحة تحكم الإدارة</p>
+            <h2 class="text-2xl font-bold">Admin Login</h2>
+            <p class="text-slate-400 text-sm mt-1">Control Panel Access</p>
         </div>
         
         <form id="loginForm" class="space-y-5">
             <div>
-                <label class="block text-sm mb-1 text-slate-300">اسم المستخدم</label>
+                <label class="block text-sm mb-1 text-slate-300">Username</label>
                 <input type="text" id="username" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 focus:outline-none focus:border-indigo-500 text-white" required>
             </div>
             <div>
-                <label class="block text-sm mb-1 text-slate-300">كلمة المرور</label>
+                <label class="block text-sm mb-1 text-slate-300">Password</label>
                 <input type="password" id="password" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 focus:outline-none focus:border-indigo-500 text-white" required>
             </div>
             <button type="submit" id="loginBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-200 mt-2">
-                دخول للنظام <i class="fas fa-sign-in-alt ml-2"></i>
+                Login <i class="fas fa-sign-in-alt ml-2"></i>
             </button>
         </form>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
+    <!-- Main Dashboard -->
     <div id="dashboardSection" class="hidden w-full max-w-6xl mx-auto p-4 md:p-6 pb-20">
         
-        <!-- الهيدر -->
         <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-700 mb-6">
             <div class="flex items-center gap-3">
                 <i class="fas fa-user-tie text-2xl text-indigo-400"></i>
                 <div>
-                    <h2 class="text-xl font-bold">مرحباً بكِ، ميس دينا</h2>
-                    <p class="text-xs text-slate-400">مدير النظام</p>
+                    <h2 class="text-xl font-bold">Welcome, Ms. Dina</h2>
+                    <p class="text-xs text-slate-400">System Administrator</p>
                 </div>
             </div>
             <button onclick="logout()" class="text-red-400 hover:text-white hover:bg-red-500/20 p-2 rounded-lg transition">
-                تسجيل خروج <i class="fas fa-power-off ml-1"></i>
+                Logout <i class="fas fa-power-off ml-1"></i>
             </button>
         </div>
 
-        <!-- اختيار الصف -->
         <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 mb-6">
-            <label class="block text-lg font-bold mb-3 text-indigo-300"><i class="fas fa-filter mr-2"></i>تحديد الصف الدراسي</label>
+            <label class="block text-lg font-bold mb-3 text-indigo-300"><i class="fas fa-filter mr-2"></i>Select Grade Level</label>
             <select id="mainGradeFilter" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 text-lg focus:outline-none focus:border-indigo-500 text-white">
-                <option value="">-- يرجى اختيار الصف لعرض البيانات --</option>
-                <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
-                <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
-                <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                <option value="">-- Please select a grade to view data --</option>
+                <option value="First Preparatory">First Preparatory</option>
+                <option value="Second Preparatory">Second Preparatory</option>
+                <option value="Third Preparatory">Third Preparatory</option>
             </select>
         </div>
 
         <div id="welcomeMessage" class="text-center py-20 text-slate-500">
             <i class="fas fa-hand-point-up text-5xl mb-4 opacity-50 block animate-bounce"></i>
-            <h3 class="text-2xl">اختر الصف الدراسي من القائمة بالأعلى للبدء</h3>
+            <h3 class="text-2xl">Please select a grade level to start</h3>
         </div>
 
-        <!-- محتوى الصف (المواعيد والطلبة) -->
         <div id="gradeContent" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- قسم المواعيد (يمين الشاشة) -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg">
                     <h3 class="font-bold text-lg mb-4 text-emerald-400 border-b border-slate-700 pb-2">
-                        <i class="fas fa-plus-circle mr-2"></i>إضافة ميعاد <span id="lblAddGrade" class="text-sm text-slate-400"></span>
+                        <i class="fas fa-plus-circle mr-2"></i>Add Group <span id="lblAddGrade" class="text-sm text-slate-400"></span>
                     </h3>
                     <div class="space-y-3">
                         <select id="day1" class="w-full bg-slate-700 border-slate-600 rounded p-2 text-sm focus:border-indigo-500 outline-none">
-                            <option value="السبت">السبت</option><option value="الأحد">الأحد</option><option value="الاثنين">الاثنين</option><option value="الثلاثاء">الثلاثاء</option><option value="الأربعاء">الأربعاء</option><option value="الخميس">الخميس</option><option value="الجمعة">الجمعة</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
                         </select>
                         <select id="day2" class="w-full bg-slate-700 border-slate-600 rounded p-2 text-sm focus:border-indigo-500 outline-none">
-                            <option value="فقط">-- يوم واحد فقط --</option>
-                            <option value="والثلاثاء">والثلاثاء</option><option value="والأربعاء">والأربعاء</option><option value="والخميس">والخميس</option>
+                            <option value="Only">-- One Day Only --</option>
+                            <option value="& Tuesday">& Tuesday</option>
+                            <option value="& Wednesday">& Wednesday</option>
+                            <option value="& Thursday">& Thursday</option>
                         </select>
-                        <input type="time" id="groupTimeInput" class="w-full bg-slate-700 border-slate-600 rounded p-2 text-sm focus:border-indigo-500 outline-none" dir="ltr">
+                        <input type="time" id="groupTimeInput" class="w-full bg-slate-700 border-slate-600 rounded p-2 text-sm focus:border-indigo-500 outline-none">
                         <button onclick="addNewGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded transition">
-                            حفظ الميعاد
+                            Save Group
                         </button>
                     </div>
                 </div>
 
                 <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg">
                     <h3 class="font-bold text-lg mb-4 text-indigo-300 border-b border-slate-700 pb-2">
-                        <i class="fas fa-list mr-2"></i>المواعيد الحالية
+                        <i class="fas fa-list mr-2"></i>Current Groups
                     </h3>
                     <ul id="groupsList" class="space-y-2"></ul>
                 </div>
             </div>
 
-            <!-- قسم الطلبة (يسار الشاشة) -->
             <div class="lg:col-span-2">
                 <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg overflow-hidden">
                     <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
                         <h3 class="font-bold text-lg text-white">
-                            <i class="fas fa-users mr-2 text-indigo-400"></i>الطلاب المسجلين <span id="lblStudentsGrade" class="text-sm text-slate-400"></span>
+                            <i class="fas fa-users mr-2 text-indigo-400"></i>Registered Students <span id="lblStudentsGrade" class="text-sm text-slate-400"></span>
                         </h3>
-                        <span id="studentsCount" class="bg-indigo-600/30 text-indigo-300 px-3 py-1 rounded-full text-sm font-bold border border-indigo-500/30">0 طالب</span>
+                        <span id="studentsCount" class="bg-indigo-600/30 text-indigo-300 px-3 py-1 rounded-full text-sm font-bold border border-indigo-500/30">0 Students</span>
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right w-full whitespace-nowrap">
+                        <table class="whitespace-nowrap">
                             <thead class="text-slate-400 text-sm bg-slate-700/50">
                                 <tr>
-                                    <th class="rounded-r-lg">الاسم والكود</th>
-                                    <th>الميعاد</th>
-                                    <th>رقم ولي الأمر</th>
-                                    <th class="text-center rounded-l-lg">إجراءات</th>
+                                    <th class="rounded-l-lg">Name & Code</th>
+                                    <th>Group Time</th>
+                                    <th>Parent Phone</th>
+                                    <th class="text-center rounded-r-lg">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="studentsTable"></tbody>
@@ -167,14 +153,12 @@
     </div>
 
     <script>
-        // بيانات الاتصال المحدثة
         const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_wyVyUG_RVd8nb2xq1Hmlpw_43HsqoPJ';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         let currentSelectedGrade = '';
 
-        // نظام الإشعارات الذكي (Toasts)
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
@@ -190,19 +174,17 @@
                 t.className = 'toast bg-emerald-600 shadow-lg shadow-emerald-500/50 show px-6 py-3 rounded-full flex items-center gap-3';
                 icon.className = 'fas fa-check-circle text-xl';
             }
-            
             setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        // شاشة التحميل
         window.onload = () => {
             const splash = document.getElementById('splashScreen');
             const splashText = document.getElementById('splashText');
             
             const messages = [
-                "مرحباً بكِ يا ميس دينا",
-                "في لوحة التحكم الخاصة بكِ",
-                "يتم الآن تجهيز بيئة العمل..."
+                "Welcome, Ms. Dina Fathy",
+                "Accessing Dashboard...",
+                "Preparing Workspace..."
             ];
             
             let i = 0;
@@ -231,41 +213,46 @@
                 showDashboard(); 
             } else {
                 document.getElementById('loginSection').classList.remove('hidden');
+                document.body.classList.replace('justify-start', 'justify-center');
             }
         }
 
-        // تسجيل الدخول مع كاشف الأخطاء
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('loginBtn');
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الفحص...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Checking...';
             btn.disabled = true;
 
             try {
-                const { data, error } = await _supabase.from('admin_users').select('*');
-
-                if (error) {
-                    alert(`🚨 خطأ من سوبابيز:\nالرسالة: ${error.message}\nتأكد من إعدادات الجداول والاتصال.`);
-                    showToast(error.message, 'error');
+                if (u === 'admin' && p === 'admin123') {
+                    sessionStorage.setItem('DinaAdmin_Logged', 'true');
+                    showToast('Welcome back, Ms. Dina!');
+                    setTimeout(() => { showDashboard(); }, 1000);
                     return;
                 }
-                
-                const userMatch = data.find(user => user.username === u && user.password === p);
 
-                if (userMatch || (u === 'admin' && p === 'admin123')) {
-                    sessionStorage.setItem('DinaAdmin_Logged', 'true');
-                    showToast('أهلاً بكِ يا ميس دينا!');
-                    setTimeout(() => { showDashboard(); }, 1000);
-                } else {
-                    showToast('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+                const { data, error } = await _supabase.from('admin_users').select('*');
+                
+                if (!error && data) {
+                    const userMatch = data.find(user => user.username === u && user.password === p);
+                    if (userMatch) {
+                        sessionStorage.setItem('DinaAdmin_Logged', 'true');
+                        showToast('Welcome back, Ms. Dina!');
+                        setTimeout(() => { showDashboard(); }, 1000);
+                        return;
+                    }
                 }
+                
+                showToast('Invalid Username or Password', 'error');
+
             } catch (err) {
-                alert(`❌ خطأ غير متوقع:\n${err.message}`);
+                console.error(err);
+                showToast('System Error occurred', 'error');
             } finally {
-                btn.innerHTML = 'دخول للنظام <i class="fas fa-sign-in-alt ml-2"></i>';
+                btn.innerHTML = 'Login <i class="fas fa-sign-in-alt ml-2"></i>';
                 btn.disabled = false;
             }
         });
@@ -281,7 +268,6 @@
             location.reload(); 
         }
 
-        // فلتر الصفوف
         document.getElementById('mainGradeFilter').addEventListener('change', (e) => {
             currentSelectedGrade = e.target.value;
             if(!currentSelectedGrade) {
@@ -299,7 +285,6 @@
         async function loadDataForGrade() {
             document.getElementById('studentsTable').innerHTML = '<tr><td colspan="4" class="text-center py-10"><i class="fas fa-spinner fa-spin text-3xl text-indigo-500"></i></td></tr>';
             
-            // جلب المواعيد
             const { data: groups } = await _supabase.from('groups').select('*').eq('grade', currentSelectedGrade);
             const groupsList = document.getElementById('groupsList');
             groupsList.innerHTML = '';
@@ -308,26 +293,25 @@
                 groups.forEach(g => {
                     groupsList.innerHTML += `
                     <li class="bg-slate-700/50 p-3 rounded-lg flex justify-between items-center border border-slate-600/50 hover:border-indigo-500/50 transition">
-                        <span class="font-bold text-indigo-300 text-sm"><i class="far fa-clock mr-1"></i> ${g.group_name}</span>
+                        <span class="font-bold text-indigo-300 text-sm"><i class="far fa-clock mr-2"></i> ${g.group_name}</span>
                         <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 p-2 rounded transition"><i class="fas fa-trash-alt"></i></button>
                     </li>`;
                 });
             } else {
-                groupsList.innerHTML = '<div class="text-center py-4 text-slate-500 text-sm"><i class="fas fa-folder-open text-2xl mb-2 block"></i>لا يوجد مواعيد مسجلة</div>';
+                groupsList.innerHTML = '<div class="text-center py-4 text-slate-500 text-sm"><i class="fas fa-folder-open text-2xl mb-2 block"></i>No groups recorded</div>';
             }
 
-            // جلب الطلبة
             const { data: students } = await _supabase.from('students_registration').select('*').like('grade', `${currentSelectedGrade}%`).order('created_at', { ascending: false });
             renderStudents(students || []);
         }
 
         function renderStudents(students) {
             const tbody = document.getElementById('studentsTable');
-            document.getElementById('studentsCount').innerText = `${students.length} طالب`;
+            document.getElementById('studentsCount').innerText = `${students.length} Student(s)`;
             tbody.innerHTML = '';
             
             if(students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-12 text-slate-500"><i class="fas fa-user-slash text-4xl mb-3 block opacity-50"></i>لم يسجل أي طالب في هذا الصف حتى الآن</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-12 text-slate-500"><i class="fas fa-user-slash text-4xl mb-3 block opacity-50"></i>No students registered in this grade yet</td></tr>';
                 return;
             }
 
@@ -337,21 +321,21 @@
                 const blockIcon = isBlocked ? 'fa-user-check' : 'fa-user-lock';
                 const blockColor = isBlocked ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500';
                 const blockAction = isBlocked ? 'active' : 'blocked';
-                const waMsg = `أهلاً بك، بخصوص الطالب/ة ${s.name} في ${s.grade}...`;
+                const waMsg = `Hello, regarding student ${s.name} in ${s.grade}...`;
                 
                 tbody.innerHTML += `
                     <tr class="${trClass} transition-colors duration-200">
                         <td>
                             <div class="font-bold text-white text-md">${s.name}</div>
-                            <div class="text-xs text-indigo-400 mt-1 font-mono bg-indigo-900/30 inline-block px-2 py-0.5 rounded">كود: ${s.student_code || 'N/A'}</div>
+                            <div class="text-xs text-indigo-400 mt-1 font-mono bg-indigo-900/30 inline-block px-2 py-0.5 rounded">Code: ${s.student_code || 'N/A'}</div>
                         </td>
                         <td class="text-sm font-bold text-emerald-300">${s.grade.split(' - ')[1] || s.grade}</td>
-                        <td dir="ltr" class="text-right font-mono text-slate-300">${s.parent_phone}</td>
+                        <td class="font-mono text-slate-300">${s.parent_phone}</td>
                         <td class="text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <a href="https://wa.me/2${s.parent_phone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="bg-green-600 hover:bg-green-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition"><i class="fab fa-whatsapp"></i></a>
-                                <button onclick="updateStudentStatus(${s.id}, '${blockAction}')" class="${blockColor} text-white w-8 h-8 flex items-center justify-center rounded shadow transition"><i class="fas ${blockIcon}"></i></button>
-                                <button onclick="removeStudent(${s.id}, '${s.name}')" class="bg-red-600 hover:bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition"><i class="fas fa-trash"></i></button>
+                                <a href="https://wa.me/2${s.parent_phone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="bg-green-600 hover:bg-green-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                <button onclick="updateStudentStatus(${s.id}, '${blockAction}')" class="${blockColor} text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="Block/Unblock"><i class="fas ${blockIcon}"></i></button>
+                                <button onclick="removeStudent(${s.id}, '${s.name}')" class="bg-red-600 hover:bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded shadow transition" title="Delete"><i class="fas fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -361,7 +345,7 @@
 
         function formatAMPM(time24) {
             let [hours, minutes] = time24.split(':');
-            let ampm = hours >= 12 ? 'مساءً' : 'صباحاً';
+            let ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
             hours = hours ? hours : 12; 
             return `${hours}:${minutes} ${ampm}`;
@@ -373,37 +357,36 @@
             const timeVal = document.getElementById('groupTimeInput').value;
             
             if(!timeVal) {
-                showToast('يرجى تحديد وقت الحصة', 'error
-                          return;
+                showToast('Please specify the time', 'error');
+                return;
             }
 
             const formattedTime = formatAMPM(timeVal);
-            const finalTime = (d2 === 'فقط') ? `${d1} الساعة ${formattedTime}` : `${d1} ${d2} الساعة ${formattedTime}`;
-            
+            const finalTime = (d2 === 'Only') ? `${d1} at ${fo
             await _supabase.from('groups').insert([{ grade: currentSelectedGrade, group_name: finalTime }]);
-            showToast('تمت إضافة الميعاد بنجاح');
+            showToast('Group added successfully');
             loadDataForGrade();
         }
 
         async function deleteGroup(id) {
-            if(confirm('هل أنتِ متأكدة من حذف هذا الميعاد نهائياً؟')) {
+            if(confirm('Are you sure you want to permanently delete this group?')) {
                 await _supabase.from('groups').delete().eq('id', id);
-                showToast('تم حذف الميعاد', 'warning');
+                showToast('Group deleted', 'warning');
                 loadDataForGrade();
             }
         }
 
         async function removeStudent(id, name) {
-            if(confirm(`هل تريدين مسح بيانات الطالب (${name}) نهائياً؟`)) {
+            if(confirm(`Are you sure you want to completely remove student (${name})?`)) {
                 await _supabase.from('students_registration').delete().eq('id', id);
-                showToast('تم حذف الطالب بنجاح', 'warning');
+                showToast('Student deleted successfully', 'warning');
                 loadDataForGrade();
             }
         }
 
         async function updateStudentStatus(id, newStatus) {
             await _supabase.from('students_registration').update({ status: newStatus }).eq('id', id);
-            showToast(newStatus === 'blocked' ? 'تم حظر الطالب بنجاح' : 'تم فك حظر الطالب');
+            showToast(newStatus === 'blocked' ? 'Student blocked' : 'Student unblocked');
             loadDataForGrade();
         }
     </script>
