@@ -1,339 +1,149 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration | Miss Dina Fatehy</title>
+    <title>Student Registration - Ms. Dina Fathy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Poppins:wght@300;400;500;700;900&display=swap');
-        
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
-            min-height: 100vh;
-            color: #f8fafc;
-            overflow-x: hidden;
-            margin: 0;
-        }
-
-        .en-font { font-family: 'Poppins', sans-serif; }
-
-        /* ستايل شاشة الترحيب زي ويندوز 11 */
-        #windows-splash {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background-color: #000000;
-            display: flex;
-            align-items: center;
-            justify-center;
-            transition: opacity 1.5s ease-in-out;
-        }
-
-        #splash-text {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: white;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out;
-            width: 100%;
-            padding: 0 20px;
-        }
-
-        @media (min-width: 768px) {
-            #splash-text { font-size: 3.5rem; }
-        }
-
-        /* تأثيرات الزجاج الفخمة لفورمة التسجيل */
-        .glass-container {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-container.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        /* حقول الإدخال */
-        .premium-input {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 1rem 1rem 1rem 3rem;
-            border-radius: 0.75rem;
-            color: white;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .premium-input:focus {
-            outline: none;
-            border-color: #818cf8;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            transform: translateY(-2px);
-        }
-
-        /* الإشعارات */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #10b981;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 10000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transition: visibility 0.5s, bottom 0.5s, opacity 0.5s;
-            opacity: 0;
-        }
-        #toast.show {
-            visibility: visible;
-            bottom: 50px;
-            opacity: 1;
-        }
-
-        /* دوائر الخلفية المضيئة */
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            z-index: 0;
-            border-radius: 50%;
-            animation: float 10s infinite ease-in-out alternate;
-        }
-        .blob-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.3); }
-        .blob-2 { bottom: -10%; right: -10%; width: 300px; height: 300px; background: rgba(236, 72, 153, 0.3); }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 50px) scale(1.1); }
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="relative flex flex-col items-center justify-center min-h-screen">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 font-sans">
 
-    <!-- شاشة الترحيب الافتتاحية (ستايل ويندوز) -->
-    <div id="windows-splash">
-        <h1 id="splash-text" class="en-font" dir="ltr"></h1>
-    </div>
+    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400 mb-2">Student Registration</h1>
+            <p class="text-slate-400">Ms. Dina Fathy's Platform</p>
+        </div>
 
-    <!-- دوائر الديكور -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
-    <!-- فورمة التسجيل (مخفية في البداية) -->
-    <div class="w-full max-w-lg p-4 relative z-10 hidden" id="main-content">
-        <div class="glass-container rounded-3xl p-8 lg:p-10" id="form-container">
-            
-            <!-- الهيدر الانجليزي -->
-            <div class="text-center mb-10">
-                <h1 class="en-font text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 mb-2">
-                    Miss Dina Fathi
-                </h1>
-                <p class="text-indigo-200 text-sm font-medium tracking-wide">STUDENT REGISTRATION PORTAL</p>
+        <form id="registrationForm" class="space-y-5">
+            <!-- Student Name -->
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Full Student Name</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-3.5 text-slate-500"></i>
+                    <input type="text" id="studentName" required class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="Enter your full name">
+                </div>
             </div>
 
-            <form id="registrationForm" class="space-y-6">
+            <!-- Student Code -->
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Student Code (Optional)</label>
                 <div class="relative">
-                    <i class="fas fa-user absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
-                    <input type="text" id="studentName" required placeholder="اسم الطالب الرباعي" class="premium-input pr-12">
+                    <i class="fas fa-id-badge absolute left-3 top-3.5 text-slate-500"></i>
+                    <input type="text" id="studentCode" class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="Enter code if available">
                 </div>
+            </div>
 
+            <!-- Grade -->
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Grade Level</label>
                 <div class="relative">
-                    <i class="fas fa-id-card absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
-                    <input type="text" id="studentCode" placeholder="رقم الطالب (اختياري)" class="premium-input pr-12">
-                </div>
-
-                <div class="relative">
-                    <i class="fas fa-phone absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400"></i>
-                    <input type="tel" id="parentPhone" required placeholder="رقم هاتف ولي الأمر (01...)" class="premium-input pr-12 text-left" dir="ltr">
-                </div>
-
-                <div class="relative">
-                    <i class="fas fa-graduation-cap absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10"></i>
-                    <select id="gradeSelect" required class="premium-input pr-12 cursor-pointer appearance-none">
-                        <option value="" disabled selected>اختر الصف الدراسي...</option>
-                        <option value="الأول الابتدائي">الأول الابتدائي</option>
-                        <option value="الثاني الابتدائي">الثاني الابتدائي</option>
-                        <option value="الثالث الابتدائي">الثالث الابتدائي</option>
-                        <option value="الرابع الابتدائي">الرابع الابتدائي</option>
-                        <option value="الخامس الابتدائي">الخامس الابتدائي</option>
-                        <option value="السادس الابتدائي">السادس الابتدائي</option>
-                        <option value="الأول الإعدادي">الأول الإعدادي</option>
-                        <option value="الثاني الإعدادي">الثاني الإعدادي</option>
-                        <option value="الثالث الإعدادي">الثالث الإعدادي</option>
-                        <option value="الأول الثانوي">الأول الثانوي</option>
+                    <i class="fas fa-graduation-cap absolute left-3 top-3.5 text-slate-500"></i>
+                    <select id="gradeSelect" required class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition appearance-none">
+                        <option value="">Select Grade...</option>
+                        <option value="First Preparatory">First Preparatory</option>
+                        <option value="Second Preparatory">Second Preparatory</option>
+                        <option value="Third Preparatory">Third Preparatory</option>
                     </select>
                 </div>
+            </div>
 
+            <!-- Group Time -->
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Preferred Time</label>
                 <div class="relative">
-                    <i class="fas fa-clock absolute right-4 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10"></i>
-                    <select id="groupSelect" required disabled class="premium-input pr-12 cursor-pointer appearance-none opacity-50 transition-opacity duration-300">
-                        <option value="" disabled selected>اختر الصف أولاً لتظهر المواعيد...</option>
+                    <i class="fas fa-clock absolute left-3 top-3.5 text-slate-500"></i>
+                    <select id="groupSelect" required disabled class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition appearance-none opacity-50 cursor-not-allowed">
+                        <option value="">Select a grade first</option>
                     </select>
                 </div>
+            </div>
 
-                <button type="submit" id="submitBtn" class="w-full relative group overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]">
-                    <span class="relative z-10 flex items-center justify-center gap-2">
-                        <i class="fas fa-paper-plane"></i>
-                        تأكيد تسجيل البيانات
-                    </span>
-                    <div class="absolute inset-0 h-full w-full bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </button>
-            </form>
+            <!-- Parent Phone -->
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Parent's Phone Number</label>
+                <div class="relative">
+                    <i class="fas fa-phone absolute left-3 top-3.5 text-slate-500"></i>
+                    <input type="tel" id="parentPhone" required pattern="[0-9]{11}" class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="01xxxxxxxxx">
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-lg shadow-indigo-500/30">
+                Confirm Registration <i class="fas fa-paper-plane ml-2"></i>
+            </button>
+        </form>
+
+        <div id="successMsg" class="hidden mt-6 bg-emerald-900/50 border border-emerald-500 text-emerald-300 p-4 rounded-lg text-center">
+            <i class="fas fa-check-circle text-2xl mb-2"></i>
+            <p>Registration Successful! We will contact you soon.</p>
         </div>
-        
-        <p class="text-center text-slate-500 text-sm mt-6 en-font">Powered by Advanced Supabase System &copy; 2026</p>
     </div>
 
-    <!-- رسالة الإشعار -->
-    <div id="toast">✅ تمت عملية التسجيل بنجاح!</div>
-
     <script>
-        // === برمجة الشاشة الافتتاحية (Windows 11 Style) ===
-        const splashScreen = document.getElementById('windows-splash');
-        const splashText = document.getElementById('splash-text');
-        const mainContent = document.getElementById('main-content');
-        const formContainer = document.getElementById('form-container');
-        
-        const welcomeMessages = [
-            "Hi.",
-            "We welcome our new students.",
-            "We wish you a year full of excellence.",
-            "Getting everything ready for you..."
-        ];
-        
-        let msgIndex = 0;
-        
-        function showNextMessage() {
-            if (msgIndex < welcomeMessages.length) {
-                // إخفاء النص الحالي
-                splashText.style.opacity = 0;
-                
-                setTimeout(() => {
-                    // تغيير النص وإظهاره
-                    splashText.textContent = welcomeMessages[msgIndex];
-                    splashText.style.opacity = 1;
-                    msgIndex++;
-                    
-                    // الانتظار قبل عرض الرسالة اللي بعدها
-                    setTimeout(showNextMessage, 3000); // كل رسالة هتاخد 3 ثواني
-                }, 1500); // وقت الـ fade-out
-            } else {
-                // إنهاء الشاشة الافتتاحية
-                splashText.style.opacity = 0;
-                setTimeout(() => {
-                    splashScreen.style.opacity = 0;
-                    setTimeout(() => {
-                        splashScreen.style.display = 'none';
-                        mainContent.classList.remove('hidden');
-                        // تأثير دخول الفورمة ببطء وشياكة
-                        setTimeout(() => {
-                            formContainer.classList.add('show');
-                        }, 100);
-                    }, 1500);
-                }, 1500);
-            }
-        }
-        
-        // تشغيل الأنيميشن أول ما الصفحة تفتح
-        window.addEventListener('load', () => {
-            setTimeout(showNextMessage, 500);
-        });
-
-
-        // === برمجة التسجيل وقاعدة البيانات ===
         const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_uqVyUG_RVd8nb2xqlHmlpw_93HsqoPJ';
+        const SUPABASE_KEY = 'sb_publishable_wyVyUG_RVd8nb2xq1Hmlpw_43HsqoPJ';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const gradeSelect = document.getElementById('gradeSelect');
         const groupSelect = document.getElementById('groupSelect');
-        const submitBtn = document.getElementById('submitBtn');
 
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 4000);
-        }
-
-        gradeSelect.addEventListener('change', async () => {
-            const grade = gradeSelect.value;
+        gradeSelect.addEventListener('change', async (e) => {
+            const selectedGrade = e.target.value;
+            groupSelect.innerHTML = '<option value="">Loading available times...</option>';
             groupSelect.disabled = true;
-            groupSelect.classList.add('opacity-50');
-            groupSelect.innerHTML = '<option value="" disabled selected>⏳ جاري البحث عن المواعيد...</option>';
+            groupSelect.classList.add('opacity-50', 'cursor-not-allowed');
+
+            if (!selectedGrade) {
+                groupSelect.innerHTML = '<option value="">Select a grade first</option>';
+                return;
+            }
 
             try {
-                const { data, error } = await _supabase.from('groups').select('*').eq('grade', grade);
+                const { data, error } = await _supabase.from('groups').select('*').eq('grade', selectedGrade);
                 if (error) throw error;
 
-                if (data.length === 0) {
-                    groupSelect.innerHTML = '<option value="" disabled selected>⚠️ لا توجد مواعيد متاحة حالياً لهذا الصف</option>';
-                } else {
-                    groupSelect.innerHTML = '<option value="" disabled selected>✨ اختر الميعاد المناسب لك...</option>';
+                groupSelect.innerHTML = '<option value="">Select Preferred Time...</option>';
+                if (data && data.length > 0) {
                     data.forEach(group => {
-                        const option = document.createElement('option');
-                        option.value = group.group_name;
-                        option.textContent = group.group_name;
-                        groupSelect.appendChild(option);
+                        groupSelect.innerHTML += `<option value="${group.group_name}">${group.group_name}</option>`;
                     });
                     groupSelect.disabled = false;
-                    groupSelect.classList.remove('opacity-50');
+                    groupSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    groupSelect.innerHTML = '<option value="">No times available for this grade</option>';
                 }
             } catch (err) {
                 console.error(err);
-                groupSelect.innerHTML = '<option value="" disabled selected>❌ حدث خطأ في النظام</option>';
+                groupSelect.innerHTML = '<option value="">Error loading times. Try again.</option>';
             }
         });
 
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const originalBtnHtml = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
-            submitBtn.disabled = true;
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registering...';
+            btn.disabled = true;
 
-            const studentCodeVal = document.getElementById('studentCode').value.trim();
+            const studentData = {
+                name: document.getElementById('studentName').value,
+                student_code: document.getElementById('studentCode').value || 'No Code',
+                grade: document.getElementById('gradeSelect').value + ' - ' + document.getElementById('groupSelect').value,
+                parent_phone: document.getElementById('parentPhone').value,
+                status: 'active'
+            };
 
             try {
-                const { error } = await _supabase.from('students_registration').insert([{
-                    name: document.getElementById('studentName').value,
-                    student_code: studentCodeVal === "" ? null : studentCodeVal,
-                    parent_phone: document.getElementById('parentPhone').value,
-                    grade: gradeSelect.value + " - " + groupSelect.value
-                }]);
-
+                const { error } = await _supabase.from('students_registration').insert([studentData]);
                 if (error) throw error;
-
-                showToast("🎉 مرحباً بك! تم تسجيل بياناتك بنجاح.");
-                document.getElementById('registrationForm').reset();
-                groupSelect.innerHTML = '<option value="" disabled selected>اختر الصف أولاً لتظهر المواعيد...</option>';
-                groupSelect.disabled = true;
-                groupSelect.classList.add('opacity-50');
-
+                document.getElementById('registrationForm').classList.add('hidden');
+                document.getElementById('successMsg').classList.remove('hidden');
             } catch (err) {
-                console.error(err);
-                showToast("❌ عذراً، حدث خطأ أثناء التسجيل.", true);
-            } finally {
-                submitBtn.innerHTML = originalBtnHtml;
-                submitBtn.disabled = false;
+                alert('Registration Error: ' + err.message);
+                btn.innerHTML = 'Confirm Registration <i class="fas fa-paper-plane ml-2"></i>';
+                btn.disabled = false;
             }
         });
     </script>
 </body>
-    </html>
-    
+</html>
