@@ -1,149 +1,503 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration - Ms. Dina Fathy</title>
+    <title>نظام الإدارة الذكي للمجموعات والنقاط</title>
+    
+    <!-- استدعاء Tailwind CSS للتصميم -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- استدعاء FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- استدعاء مكتبة Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- خطوط جوجل (Tajawal) ولمسات CSS مخصصة -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #020617; /* slate-950 */
+            color: #e2e8f0; /* slate-200 */
+        }
+        .glass-panel { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        .admin-gradient { 
+            background: linear-gradient(135deg, rgba(30,27,75,0.8) 0%, rgba(15,23,42,0.9) 100%); 
+        }
+        .animate-fadeIn { 
+            animation: fadeIn 0.4s ease-out forwards; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        /* تصميم مخصص للسكروول بار (Scrollbar) */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="min-h-screen selection:bg-purple-500/30">
 
-    <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-indigo-400 mb-2">Student Registration</h1>
-            <p class="text-slate-400">Ms. Dina Fathy's Platform</p>
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- ========================================== -->
+        <!-- VIEW 1: HOME (القائمة الرئيسية)              -->
+        <!-- ========================================== -->
+        <div id="homeView" class="view-section min-h-screen flex flex-col items-center justify-center p-6 animate-fadeIn">
+            <div class="text-center mb-10 space-y-4">
+                <div class="inline-block p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-2">
+                    <i class="fas fa-graduation-cap text-5xl text-indigo-400"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
+                    منصة الإدارة الذكية
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-lg mx-auto">
+                    بوابة التسجيل، الاستعلام عن النقاط، ولوحة الشرف للمنظومة التعليمية
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                <button onclick="switchView('studentRegView')" class="glass-panel p-6 rounded-3xl hover:bg-slate-900/80 transition group text-right flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-blue-400 transition">تسجيل طالب جديد</h3>
+                        <p class="text-xs text-slate-400 mt-1">احجز مقعدك في المجموعات المتاحة</p>
+                    </div>
+                    <i class="fas fa-user-plus text-3xl text-slate-600 group-hover:text-blue-500 transition"></i>
+                </button>
+
+                <button onclick="openGradesLeaderboard()" class="glass-panel p-6 rounded-3xl hover:bg-slate-900/80 transition group text-right flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-amber-400 transition">لوحة الشرف والمراكز</h3>
+                        <p class="text-xs text-slate-400 mt-1">تصفح ترتيب الأوائل والنقاط</p>
+                    </div>
+                    <i class="fas fa-trophy text-3xl text-slate-600 group-hover:text-amber-500 transition"></i>
+                </button>
+
+                <button onclick="switchView('studentPointsView')" class="glass-panel p-6 rounded-3xl hover:bg-slate-900/80 transition group text-right flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition">استعلام عن نقاطي</h3>
+                        <p class="text-xs text-slate-400 mt-1">ابحث باسمك أو بالكود الخاص بك</p>
+                    </div>
+                    <i class="fas fa-search text-3xl text-slate-600 group-hover:text-emerald-500 transition"></i>
+                </button>
+
+                <button onclick="switchView('adminLoginView')" class="glass-panel p-6 rounded-3xl hover:bg-slate-900/80 transition group text-right flex items-center justify-between border-purple-500/20">
+                    <div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-purple-400 transition">بوابة الأستاذة دينا</h3>
+                        <p class="text-xs text-slate-400 mt-1">لوحة التحكم وإدارة النظام</p>
+                    </div>
+                    <i class="fas fa-shield-halved text-3xl text-slate-600 group-hover:text-purple-500 transition"></i>
+                </button>
+            </div>
         </div>
 
-        <form id="registrationForm" class="space-y-5">
-            <!-- Student Name -->
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Full Student Name</label>
-                <div class="relative">
-                    <i class="fas fa-user absolute left-3 top-3.5 text-slate-500"></i>
-                    <input type="text" id="studentName" required class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="Enter your full name">
-                </div>
-            </div>
+        <!-- ========================================== -->
+        <!-- VIEW 2: REGISTRATION (تسجيل طالب جديد)     -->
+        <!-- ========================================== -->
+        <div id="studentRegView" class="view-section hidden min-h-screen p-6 flex flex-col items-center justify-center animate-fadeIn">
+            <div class="w-full max-w-xl glass-panel p-8 rounded-3xl shadow-2xl relative">
+                <button onclick="switchView('homeView')" class="absolute top-6 right-6 text-slate-400 hover:text-white text-xl transition"><i class="fas fa-arrow-right"></i> عودة</button>
+                
+                <h2 class="text-2xl font-black text-white mb-6 border-b border-slate-800 pb-4"><i class="fas fa-user-plus text-blue-500 mr-2"></i> استمارة تسجيل طالب جديد</h2>
+                
+                <form id="massiveRegisterForm" onsubmit="handleRegistrationSubmit(event)" class="space-y-6">
+                    <!-- الخطوة 1: اختيار المرحلة -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-2">المرحلة الدراسية</label>
+                        <select id="regGrade" onchange="handleRegGradeChange(this.value)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
+                            <option value="">-- اختر المرحلة الدراسية --</option>
+                            <option value="First Primary">First Primary</option>
+                            <option value="Second Primary">Second Primary</option>
+                            <option value="Third Primary">Third Primary</option>
+                            <option value="Fourth Primary">Fourth Primary</option>
+                            <option value="Fifth Primary">Fifth Primary</option>
+                            <option value="Sixth Primary">Sixth Primary</option>
+                            <option value="First Preparatory">First Preparatory</option>
+                            <option value="Second Preparatory">Second Preparatory</option>
+                            <option value="Third Preparatory">Third Preparatory</option>
+                            <option value="First Secondary">First Secondary</option>
+                        </select>
+                    </div>
 
-            <!-- Student Code -->
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Student Code (Optional)</label>
-                <div class="relative">
-                    <i class="fas fa-id-badge absolute left-3 top-3.5 text-slate-500"></i>
-                    <input type="text" id="studentCode" class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="Enter code if available">
-                </div>
-            </div>
+                    <!-- الخطوة 2: اختيار المجموعة -->
+                    <div id="step2Container" class="opacity-40 transition-opacity duration-300">
+                        <label class="block text-xs font-bold text-slate-400 mb-2">المجموعة المتاحة</label>
+                        <select id="regGroup" onchange="handleRegGroupChange(this.value)" disabled required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
+                            <option value="">-- يرجى اختيار المرحلة أولاً --</option>
+                        </select>
+                    </div>
 
-            <!-- Grade -->
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Grade Level</label>
-                <div class="relative">
-                    <i class="fas fa-graduation-cap absolute left-3 top-3.5 text-slate-500"></i>
-                    <select id="gradeSelect" required class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition appearance-none">
-                        <option value="">Select Grade...</option>
+                    <!-- تفاصيل المجموعة المختارة -->
+                    <div id="groupDetailsPanel" class="hidden bg-slate-900/50 p-4 rounded-xl border border-slate-700/50 grid grid-cols-2 gap-3 text-xs">
+                        <div><span class="text-slate-400">التكلفة:</span> <span id="dispFee" class="font-bold text-emerald-400"></span></div>
+                        <div><span class="text-slate-400">الموعد:</span> <span id="dispTime" class="font-bold text-white"></span></div>
+                        <div><span class="text-slate-400">الأيام:</span> <span id="dispDays" class="font-bold text-white"></span></div>
+                        <div><span class="text-slate-400">المقاعد المتاحة:</span> <span id="dispSeats" class="font-bold text-amber-400"></span></div>
+                    </div>
+
+                    <div id="groupFullWarning" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-xl text-sm font-bold text-center">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> عذراً، هذه المجموعة اكتمل عددها ولا يوجد مقاعد شاغرة.
+                    </div>
+
+                    <!-- الخطوة 3: بيانات الطالب -->
+                    <div id="studentInputsContainer" class="hidden space-y-4 pt-2 border-t border-slate-800">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">اسم الطالب (ثلاثي)</label>
+                            <input type="text" id="regStudentName" required placeholder="أدخل الاسم كامل..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">رقم هاتف ولي الأمر</label>
+                                <input type="tel" id="regParentPhone" required placeholder="01xxxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">كود الطالب (اختياري)</label>
+                                <input type="text" id="regStudentCode" placeholder="يتم توليده تلقائياً إذا تُرك فارغاً" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="regSubmitBtn" disabled class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition opacity-40 cursor-not-allowed text-lg">
+                        تأكيد حجز المقعد والتسجيل
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: LEADERBOARD (لوحة الشرف)           -->
+        <!-- ========================================== -->
+        <div id="leaderboardView" class="view-section hidden min-h-screen p-6 flex flex-col animate-fadeIn">
+            <div class="w-full max-w-4xl mx-auto glass-panel p-6 md:p-8 rounded-3xl shadow-2xl relative">
+                <button onclick="switchView('homeView')" class="absolute top-6 right-6 text-slate-400 hover:text-white text-xl"><i class="fas fa-times"></i></button>
+                
+                <div class="text-center mb-8">
+                    <i class="fas fa-crown text-5xl text-amber-400 mb-3 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"></i>
+                    <h2 class="text-3xl font-black text-white">لوحة الشرف والمتصدرين</h2>
+                    <p class="text-sm text-slate-400 mt-2">ترتيب الطلاب حسب النقاط التي تم جمعها</p>
+                </div>
+
+                <!-- أزرار التحكم في الترتيب -->
+                <div class="flex flex-wrap gap-2 mb-6 justify-center">
+                    <button id="btnGlobalLb" onclick="toggleLeaderboardType('global')" class="py-2 px-6 font-bold rounded-xl bg-amber-600 text-white shadow-md transition">
+                        الترتيب العالمي (الكل)
+                    </button>
+                    <button id="btnGradeLb" onclick="toggleLeaderboardType('grade')" class="py-2 px-6 font-bold rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition">
+                        الترتيب حسب المرحلة
+                    </button>
+                </div>
+
+                <div id="lbGradeSelectorContainer" class="hidden mb-6 text-center">
+                    <select id="lbGradeSelect" onchange="loadGradeLeaderboardData(this.value)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-amber-500 w-full max-w-xs mx-auto">
+                        <option value="First Primary">First Primary</option>
+                        <option value="Second Primary">Second Primary</option>
+                        <option value="Third Primary">Third Primary</option>
+                        <option value="Fourth Primary">Fourth Primary</option>
+                        <option value="Fifth Primary">Fifth Primary</option>
+                        <option value="Sixth Primary">Sixth Primary</option>
                         <option value="First Preparatory">First Preparatory</option>
                         <option value="Second Preparatory">Second Preparatory</option>
                         <option value="Third Preparatory">Third Preparatory</option>
+                        <option value="First Secondary">First Secondary</option>
                     </select>
                 </div>
-            </div>
 
-            <!-- Group Time -->
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Preferred Time</label>
-                <div class="relative">
-                    <i class="fas fa-clock absolute left-3 top-3.5 text-slate-500"></i>
-                    <select id="groupSelect" required disabled class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition appearance-none opacity-50 cursor-not-allowed">
-                        <option value="">Select a grade first</option>
-                    </select>
+                <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/50">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-xs font-bold text-slate-400 uppercase border-b border-slate-800">
+                                <th class="p-4 w-20">المركز</th>
+                                <th class="p-4">اسم الطالب</th>
+                                <th class="p-4">المرحلة</th>
+                                <th class="p-4 text-left">النقاط</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardEntriesBody" class="divide-y divide-slate-800/50 text-sm">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <!-- Parent Phone -->
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Parent's Phone Number</label>
-                <div class="relative">
-                    <i class="fas fa-phone absolute left-3 top-3.5 text-slate-500"></i>
-                    <input type="tel" id="parentPhone" required pattern="[0-9]{11}" class="w-full bg-slate-700 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 focus:outline-none focus:border-indigo-500 transition" placeholder="01xxxxxxxxx">
-                </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mt-4 shadow-lg shadow-indigo-500/30">
-                Confirm Registration <i class="fas fa-paper-plane ml-2"></i>
-            </button>
-        </form>
-
-        <div id="successMsg" class="hidden mt-6 bg-emerald-900/50 border border-emerald-500 text-emerald-300 p-4 rounded-lg text-center">
-            <i class="fas fa-check-circle text-2xl mb-2"></i>
-            <p>Registration Successful! We will contact you soon.</p>
         </div>
-    </div>
 
+        <!-- ========================================== -->
+        <!-- VIEW 4: STUDENT POINTS LOOKUP (استعلام)    -->
+        <!-- ========================================== -->
+        <div id="studentPointsView" class="view-section hidden min-h-screen p-6 flex flex-col items-center justify-center animate-fadeIn">
+            <div class="w-full max-w-md glass-panel p-8 rounded-3xl shadow-2xl relative text-center">
+                <button onclick="switchView('homeView')" class="absolute top-6 right-6 text-slate-400 hover:text-white text-xl"><i class="fas fa-times"></i></button>
+                
+                <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-search-dollar text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white mb-2">استعلام الرصيد</h3>
+                <p class="text-xs text-slate-400 mb-6">أدخل اسمك أو كودك لمعرفة نقاطك الحالية والأوسمة</p>
+
+                <div class="space-y-4">
+                    <input type="text" id="searchStudentName" placeholder="أدخل الاسم أو الكود هنا..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-center text-white outline-none focus:border-emerald-500">
+                    
+                    <!-- الزر اللي كان ناقص عندك -->
+                    <button onclick="executeStudentPointsLookup()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg">
+                        <i class="fas fa-search mr-2"></i> استعلام عن نقاطي
+                    </button>
+                </div>
+
+                <!-- منطقة عرض بيانات الطالب بعد البحث -->
+                <div id="searchResultArea" class="hidden mt-6 p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/30 text-right space-y-4 animate-fadeIn">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h4 id="resStudentName" class="text-lg font-bold text-white">---</h4>
+                        <span id="resStudentStatus" class="px-3 py-1 text-xs font-bold rounded-full">---</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 bg-slate-950 rounded-xl">
+                            <span class="text-slate-400 block mb-1">المجموعة الحالية</span>
+                            <span id="resStudentGroup" class="text-sm font-bold text-indigo-400">---</span>
+                        </div>
+                        <div class="p-3 bg-slate-950 rounded-xl">
+                            <span class="text-slate-400 block mb-1">رصيد النقاط الحالي</span>
+                            <span id="resStudentPoints" class="text-xl font-black text-amber-400">0 Pts</span>
+                        </div>
+                    </div>
+                    <div id="resStudentBadge" class="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-xl flex items-center gap-3">
+                        <div class="text-2xl text-amber-400"><i class="fas fa-medal"></i></div>
+                        <div class="text-right">
+                            <span class="block text-[10px] text-slate-400">اللقب المستحق</span>
+                            <span id="resBadgeTitle" class="text-sm font-bold text-slate-200">---</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: TEACHER / ADMIN LOGIN              -->
+        <!-- ========================================== -->
+        <div id="adminLoginView" class="view-section hidden min-h-screen p-6 flex flex-col items-center justify-center animate-fadeIn">
+            <div class="w-full max-w-md glass-panel p-8 rounded-3xl shadow-2xl relative">
+                <button onclick="switchView('homeView')" class="absolute top-6 right-6 text-slate-400 hover:text-white text-xl"><i class="fas fa-times"></i></button>
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-shield-alt text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white">بوابة التحقق للمدرس</h3>
+                    <p class="text-xs text-slate-400 mt-1">يرجى إدخال صلاحيات المسؤول للولوج إلى لوحة التحكم</p>
+                </div>
+
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1">اسم المستخدم</label>
+                        <input type="text" id="adminUser"                        required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 mb-1">كلمة المرور</label>
+                        <input type="password" id="adminPass" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-purple-500">
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl transition shadow-lg mt-4">
+                        تسجيل الدخول للوحة التحكم
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 6: ADMIN DASHBOARD (لوحة تحكم الأستاذة دينا) -->
+        <!-- ========================================== -->
+        <div id="adminDashboardView" class="view-section hidden min-h-screen p-6 animate-fadeIn admin-gradient flex flex-col items-center">
+            <div class="w-full max-w-6xl space-y-6">
+                <!-- Header -->
+                <div class="flex flex-wrap items-center justify-between glass-panel p-6 rounded-3xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-tie text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-white">مرحباً، أ. دينا</h2>
+                            <p class="text-xs text-slate-400">نظام الإدارة والتحكم في المجموعات</p>
+                        </div>
+                    </div>
+                    <button onclick="switchView('homeView')" class="mt-4 md:mt-0 py-2 px-6 bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-white rounded-xl transition font-bold text-sm">
+                        <i class="fas fa-sign-out-alt mr-2"></i> تسجيل الخروج
+                    </button>
+                </div>
+
+                <!-- مساحة مخصصة لجداول لوحة التحكم مستقبلاً -->
+                <div class="glass-panel p-10 rounded-3xl text-center border-dashed border-2 border-slate-700">
+                    <i class="fas fa-database text-4xl text-slate-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-slate-300">مساحة إدارة البيانات</h3>
+                    <p class="text-sm text-slate-500 mt-2">هنا سيتم ربط قاعدة بيانات Supabase لعرض الطلاب وتعديل النقاط.</p>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- End of max-w-7xl -->
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
     <script>
-        const SUPABASE_URL = 'https://gxmadpzxcrfjuciclqhi.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_wyVyUG_RVd8nb2xq1Hmlpw_43HsqoPJ';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // -- إعدادات العرض (تبديل الصفحات) --
+        function switchView(viewId) {
+            // إخفاء كل الصفحات
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // إظهار الصفحة المطلوبة
+            const view = document.getElementById(viewId);
+            if(view) {
+                view.classList.remove('hidden');
+            }
+        }
 
-        const gradeSelect = document.getElementById('gradeSelect');
-        const groupSelect = document.getElementById('groupSelect');
+        // -- تأكيد وجود صفحة الترحيب (Home View) عند بداية تشغيل الموقع --
+        document.addEventListener("DOMContentLoaded", () => {
+            switchView('homeView');
+        });
 
-        gradeSelect.addEventListener('change', async (e) => {
-            const selectedGrade = e.target.value;
-            groupSelect.innerHTML = '<option value="">Loading available times...</option>';
-            groupSelect.disabled = true;
-            groupSelect.classList.add('opacity-50', 'cursor-not-allowed');
+        // -- وظائف نموذج التسجيل --
+        function handleRegGradeChange(grade) {
+            const step2 = document.getElementById('step2Container');
+            const groupSelect = document.getElementById('regGroup');
+            const submitBtn = document.getElementById('regSubmitBtn');
+            const studentInputs = document.getElementById('studentInputsContainer');
+            const groupDetails = document.getElementById('groupDetailsPanel');
 
-            if (!selectedGrade) {
-                groupSelect.innerHTML = '<option value="">Select a grade first</option>';
+            if(grade) {
+                step2.classList.remove('opacity-40');
+                groupSelect.disabled = false;
+                // محاكاة مؤقتة لظهور المجموعات
+                groupSelect.innerHTML = `
+                    <option value="">-- اختر المجموعة المتاحة --</option>
+                    <option value="g1">مجموعة السبت والثلاثاء (4 عصراً)</option>
+                    <option value="g2">مجموعة الأحد والأربعاء (6 مساءً)</option>
+                `;
+            } else {
+                step2.classList.add('opacity-40');
+                groupSelect.disabled = true;
+                groupSelect.innerHTML = '<option value="">-- يرجى اختيار المرحلة أولاً --</option>';
+                studentInputs.classList.add('hidden');
+                groupDetails.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            }
+        }
+
+        function handleRegGroupChange(group) {
+            const studentInputs = document.getElementById('studentInputsContainer');
+            const submitBtn = document.getElementById('regSubmitBtn');
+            const groupDetails = document.getElementById('groupDetailsPanel');
+
+            if(group) {
+                // عرض تفاصيل وهمية (لتجربة الشكل)
+                document.getElementById('dispFee').innerText = 'مجاناً';
+                document.getElementById('dispTime').innerText = group === 'g1' ? '04:00 عصراً' : '06:00 مساءً';
+                document.getElementById('dispDays').innerText = group === 'g1' ? 'السبت، الثلاثاء' : 'الأحد، الأربعاء';
+                document.getElementById('dispSeats').innerText = 'متوفر';
+                
+                groupDetails.classList.remove('hidden');
+                studentInputs.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            } else {
+                groupDetails.classList.add('hidden');
+                studentInputs.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            }
+        }
+
+        function handleRegistrationSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('regStudentName').value;
+            alert('عاش! تم تسجيل الطالب (' + name + ') بنجاح. في انتظار الربط بـ Supabase.');
+            document.getElementById('massiveRegisterForm').reset();
+            handleRegGradeChange(''); // لإعادة الفورم لحالته الأولى
+            switchView('homeView');
+        }
+
+        // -- وظائف لوحة الشرف --
+        function openGradesLeaderboard() {
+            switchView('leaderboardView');
+            loadGradeLeaderboardData('global');
+        }
+
+        function toggleLeaderboardType(type) {
+            const globalBtn = document.getElementById('btnGlobalLb');
+            const gradeBtn = document.getElementById('btnGradeLb');
+            const selectorContainer = document.getElementById('lbGradeSelectorContainer');
+
+            if(type === 'global') {
+                globalBtn.className = "py-2 px-6 font-bold rounded-xl bg-amber-600 text-white shadow-md transition";
+                gradeBtn.className = "py-2 px-6 font-bold rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition";
+                selectorContainer.classList.add('hidden');
+                loadGradeLeaderboardData('global');
+            } else {
+                gradeBtn.className = "py-2 px-6 font-bold rounded-xl bg-amber-600 text-white shadow-md transition";
+                globalBtn.className = "py-2 px-6 font-bold rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition";
+                selectorContainer.classList.remove('hidden');
+                loadGradeLeaderboardData(document.getElementById('lbGradeSelect').value);
+            }
+        }
+
+        function loadGradeLeaderboardData(filter) {
+            const tbody = document.getElementById('leaderboardEntriesBody');
+            // داتا تجريبية لحد ما تربط السيرفر
+            tbody.innerHTML = `
+                <tr class="hover:bg-slate-900/50 transition">
+                    <td class="p-4 font-black text-amber-400"><i class="fas fa-medal mr-1"></i> 1</td>
+                    <td class="p-4 font-bold text-white">عمر</td>
+                    <td class="p-4 text-slate-400">Sixth Primary</td>
+                    <td class="p-4 font-bold text-emerald-400">1500 Pts</td>
+                </tr>
+                <tr class="hover:bg-slate-900/50 transition">
+                    <td class="p-4 font-black text-slate-300">2</td>
+                    <td class="p-4 font-bold text-white">طالب آخر</td>
+                    <td class="p-4 text-slate-400">First Preparatory</td>
+                    <td class="p-4 font-bold text-emerald-400">1200 Pts</td>
+                </tr>
+            `;
+        }
+
+        // -- وظائف الاستعلام عن النقاط --
+        function executeStudentPointsLookup() {
+            const searchVal = document.getElementById('searchStudentName').value;
+            if(!searchVal) {
+                alert('اكتب اسمك أو كودك الأول عشان ندور عليه!');
                 return;
             }
+            
+            // محاكاة ظهور النتيجة
+            document.getElementById('resStudentName').innerText = searchVal;
+            document.getElementById('resStudentStatus').innerText = "نشط";
+            document.getElementById('resStudentStatus').className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-400";
+            document.getElementById('resStudentGroup').innerText = "Sixth Primary";
+            document.getElementById('resStudentPoints').innerText = "1500 Pts";
+            document.getElementById('resBadgeTitle').innerText = "المبرمج العبقري";
+            
+            document.getElementById('searchResultArea').classList.remove('hidden');
+        }
 
-            try {
-                const { data, error } = await _supabase.from('groups').select('*').eq('grade', selectedGrade);
-                if (error) throw error;
-
-                groupSelect.innerHTML = '<option value="">Select Preferred Time...</option>';
-                if (data && data.length > 0) {
-                    data.forEach(group => {
-                        groupSelect.innerHTML += `<option value="${group.group_name}">${group.group_name}</option>`;
-                    });
-                    groupSelect.disabled = false;
-                    groupSelect.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    groupSelect.innerHTML = '<option value="">No times available for this grade</option>';
-                }
-            } catch (err) {
-                console.error(err);
-                groupSelect.innerHTML = '<option value="">Error loading times. Try again.</option>';
-            }
-        });
-
-        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+        // -- تسجيل دخول الأستاذة دينا --
+        function handleAdminLogin(e) {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registering...';
-            btn.disabled = true;
-
-            const studentData = {
-                name: document.getElementById('studentName').value,
-                student_code: document.getElementById('studentCode').value || 'No Code',
-                grade: document.getElementById('gradeSelect').value + ' - ' + document.getElementById('groupSelect').value,
-                parent_phone: document.getElementById('parentPhone').value,
-                status: 'active'
-            };
-
-            try {
-                const { error } = await _supabase.from('students_registration').insert([studentData]);
-                if (error) throw error;
-                document.getElementById('registrationForm').classList.add('hidden');
-                document.getElementById('successMsg').classList.remove('hidden');
-            } catch (err) {
-                alert('Registration Error: ' + err.message);
-                btn.innerHTML = 'Confirm Registration <i class="fas fa-paper-plane ml-2"></i>';
-                btn.disabled = false;
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            
+            // داتا دخول مؤقتة للتجربة
+            if(user === 'dina' && pass === '1234') {
+                switchView('adminDashboardView');
+                document.getElementById('adminUser').value = '';
+                document.getElementById('adminPass').value = '';
+            } else {
+                alert('اسم المستخدم أو كلمة المرور غلط، جرب تاني!');
             }
-        });
+        }
     </script>
 </body>
 </html>
