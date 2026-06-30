@@ -82,7 +82,7 @@
                 <button onclick="switchView('studentPointsView')" class="glass-panel p-6 rounded-3xl hover:bg-slate-900/80 transition group text-right flex items-center justify-between">
                     <div>
                         <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition">استعلام عن نقاطي</h3>
-                        <p class="text-xs text-slate-400 mt-1">ابحث باسمك أو بالكود الخاص بك</p>
+                        <p class="text-xs text-slate-400 mt-1">ابحث باسمك أو بالرقم الخاص بك</p>
                     </div>
                     <i class="fas fa-search text-3xl text-slate-600 group-hover:text-emerald-500 transition"></i>
                 </button>
@@ -157,7 +157,7 @@
                                 <input type="tel" id="regParentPhone" required placeholder="01xxxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">كود الطالب (اختياري)</label>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">رقم الطالب (اختياري)</label>
                                 <input type="text" id="regStudentCode" placeholder="يتم توليده تلقائياً إذا تُرك فارغاً" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-blue-500">
                             </div>
                         </div>
@@ -237,7 +237,7 @@
                     <i class="fas fa-search-dollar text-3xl"></i>
                 </div>
                 <h3 class="text-2xl font-black text-white mb-2">استعلام الرصيد</h3>
-                <p class="text-xs text-slate-400 mb-6">أدخل اسمك أو كودك لمعرفة نقاطك الحالية والأوسمة</p>
+                <p class="text-xs text-slate-400 mb-6">أدخل اسمك أو رقمك لمعرفة نقاطك الحالية والأوسمة</p>
 
                 <div class="space-y-4">
                     <input type="text" id="searchStudentName" placeholder="أدخل الاسم أو الكود هنا..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-center text-white outline-none focus:border-emerald-500">
@@ -374,8 +374,8 @@
                 // محاكاة مؤقتة لظهور المجموعات
                 groupSelect.innerHTML = `
                     <option value="">-- اختر المجموعة المتاحة --</option>
-                    <option value="g1">مجموعة السبت والثلاثاء (4 عصراً)</option>
-                    <option value="g2">مجموعة الأحد والأربعاء (6 مساءً)</option>
+                    <option value=""></option>
+                    <option value=""></option>
                 `;
             } else {
                 step2.classList.add('opacity-40');
@@ -468,7 +468,7 @@
         function executeStudentPointsLookup() {
             const searchVal = document.getElementById('searchStudentName').value;
             if(!searchVal) {
-                alert('اكتب اسمك أو كودك الأول عشان ندور عليه!');
+                alert('اكتب اسمك أو رقمك الأول عشان ندور عليه!');
                 return;
             }
             
